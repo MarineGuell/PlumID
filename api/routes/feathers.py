@@ -9,7 +9,7 @@ router = APIRouter(prefix="/feathers", tags=["feathers"])
 
 @router.post("", response_model=FeathersOut, status_code=201)
 def create_feathers(payload: FeathersCreate, db: Session = Depends(get_db)):
-    obj = Feathers(**payload.dict())
+    obj = Feathers(**payload.model_dump(exclude_unset=True))
     db.add(obj)
     db.commit()
     db.refresh(obj)

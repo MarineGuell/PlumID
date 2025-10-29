@@ -11,7 +11,7 @@ router = APIRouter(prefix="/species", tags=["species"])
 
 @router.post("", response_model=SpeciesOut, status_code=201)
 def create_species(payload: SpeciesCreate, db: Session = Depends(get_db)):
-    obj = Species(**payload.dict())
+    obj = Species(**payload.model_dump(exclude_unset=True))
     db.add(obj)
     db.commit()
     db.refresh(obj)
