@@ -15,3 +15,4 @@ async def health(request: Request):
         "status": "ok",
         "latency_ms": round(dt, 1),
     }
+
