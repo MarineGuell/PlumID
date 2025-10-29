@@ -1,4 +1,4 @@
-# 🪶 Plum'ID — Identification d’espèces d’oiseaux à partir d’une plume
+# Plum'ID — Identification d’espèces d’oiseaux à partir d’une plume
 
 ## 🌍 Présentation du projet
 
@@ -48,16 +48,3 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 | 📚 **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
 | 💾 **Historique utilisateur** | Enregistrement des observations |
 | 🌐 **Mode hors-ligne (optionnel)** | Reconnaissance sans connexion Internet |
-
----
-
-## 🧠 Architecture technique (schéma prévisionnel)
-
-```mermaid
-graph TD
-A[Photo de plume] --> B[Prétraitement d'image (OpenCV)]
-B --> C[Modèle CNN / ViT (PyTorch / TensorFlow)]
-C --> D[Pondération par contexte géographique et temporel]
-D --> E[Résultats d'identification]
-E --> F[Interface utilisateur Web / Mobile]
-F --> G[Base de données (images + espèces + métadonnées)]
