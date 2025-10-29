@@ -3,3 +3,14 @@ fastapi==0.110.1
 uvicorn[standard]==0.30.6
 httpx==0.27.2
 
+# --- Config
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# --- DB
+SQLAlchemy>=2.0
+PyMySQL
+
+# --- Encrypters
+passlib[bcrypt]
+PyJWT
