@@ -16,20 +16,20 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Header section
               _buildHeader(context),
-              
+
               // Subtitle card
               _buildSubtitleCard(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Camera button
               _buildCameraButton(context),
-              
+
               const SizedBox(height: 32),
-              
+
               // Explorer section
               _buildExplorerSection(context),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -51,11 +51,7 @@ class HomeScreen extends StatelessWidget {
               color: AppTheme.logoBackground,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(
-              Icons.eco,
-              size: 50,
-              color: AppTheme.logoIcon,
-            ),
+            child: const Icon(Icons.eco, size: 50, color: AppTheme.logoIcon),
           ),
           const SizedBox(height: 16),
           // App title
@@ -244,11 +240,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                size: 32,
-                color: AppTheme.textSecondary,
-              ),
+              Icon(icon, size: 32, color: AppTheme.textSecondary),
               const SizedBox(height: 12),
               Text(
                 title,
@@ -261,10 +253,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
               ),
             ],
           ),
@@ -273,21 +262,38 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // todo: implement image picker
-  // Future<void> _pickImage(BuildContext context, ImageSource source) async {
-  //   final picker = ImagePicker();
-  //   final image = await picker.pickImage(source: source);
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1920,
+      );
 
-  //   if (image != null) {
-  //     // TODO: Navigate to identification screen with image
-  //     if (context.mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Image sélectionnée: ${image.path}'),
-  //           backgroundColor: AppTheme.secondaryColor,
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
+      if (image != null) {
+        // TODO: Navigate to identification screen with image
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Photo prise: ${image.name}'),
+              backgroundColor: AppTheme.secondaryColor,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la prise de photo: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 }

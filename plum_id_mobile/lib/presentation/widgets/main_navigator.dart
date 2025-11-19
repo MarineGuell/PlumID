@@ -57,7 +57,7 @@ class _MainNavigatorState extends State<MainNavigator> {
                 index: 0,
               ),
               _buildNavItem(
-                icon: Icons.search,
+                icon: Icons.image_search,
                 label: "Scanner",
                 index: 1,
               ),
