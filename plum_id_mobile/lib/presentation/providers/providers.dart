@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
@@ -24,7 +25,7 @@ part 'providers.g.dart';
 // ============================================================================
 
 @riverpod
-Dio dio(DioRef ref) {
+Dio dio(Ref ref) {
   final dio = Dio(
     BaseOptions(
       baseUrl: AppConstants.apiBaseUrl,
@@ -47,7 +48,7 @@ Dio dio(DioRef ref) {
 }
 
 @Riverpod(keepAlive: true)
-Future<SharedPreferences> sharedPreferences(SharedPreferencesRef ref) async {
+Future<SharedPreferences> sharedPreferences(Ref ref) async {
   return await SharedPreferences.getInstance();
 }
 
@@ -57,14 +58,14 @@ Future<SharedPreferences> sharedPreferences(SharedPreferencesRef ref) async {
 
 @riverpod
 IIdentificationRemoteDataSource identificationRemoteDataSource(
-  IdentificationRemoteDataSourceRef ref,
+  Ref ref,
 ) {
   return IdentificationRemoteDataSource(ref.watch(dioProvider));
 }
 
 @riverpod
 IHistoryLocalDataSource historyLocalDataSource(
-  HistoryLocalDataSourceRef ref,
+  Ref ref,
 ) {
   final sharedPrefs = ref.watch(sharedPreferencesProvider);
   return sharedPrefs.when(
@@ -75,7 +76,7 @@ IHistoryLocalDataSource historyLocalDataSource(
 }
 
 @riverpod
-ILocationDataSource locationDataSource(LocationDataSourceRef ref) {
+ILocationDataSource locationDataSource(Ref ref) {
   return LocationDataSource();
 }
 
@@ -85,7 +86,7 @@ ILocationDataSource locationDataSource(LocationDataSourceRef ref) {
 
 @riverpod
 IIdentificationRepository identificationRepository(
-  IdentificationRepositoryRef ref,
+  Ref ref,
 ) {
   return IdentificationRepositoryImpl(
     ref.watch(identificationRemoteDataSourceProvider),
@@ -93,14 +94,14 @@ IIdentificationRepository identificationRepository(
 }
 
 @riverpod
-IHistoryRepository historyRepository(HistoryRepositoryRef ref) {
+IHistoryRepository historyRepository(Ref ref) {
   return HistoryRepositoryImpl(
     ref.watch(historyLocalDataSourceProvider),
   );
 }
 
 @riverpod
-ILocationRepository locationRepository(LocationRepositoryRef ref) {
+ILocationRepository locationRepository(Ref ref) {
   return LocationRepositoryImpl(
     ref.watch(locationDataSourceProvider),
   );
@@ -111,30 +112,30 @@ ILocationRepository locationRepository(LocationRepositoryRef ref) {
 // ============================================================================
 
 @riverpod
-IdentifyBird identifyBirdUseCase(IdentifyBirdUseCaseRef ref) {
+IdentifyBird identifyBirdUseCase(Ref ref) {
   return IdentifyBird(ref.watch(identificationRepositoryProvider));
 }
 
 @riverpod
-GetSpeciesDetails getSpeciesDetailsUseCase(GetSpeciesDetailsUseCaseRef ref) {
+GetSpeciesDetails getSpeciesDetailsUseCase(Ref ref) {
   return GetSpeciesDetails(ref.watch(identificationRepositoryProvider));
 }
 
 @riverpod
-GetHistory getHistoryUseCase(GetHistoryUseCaseRef ref) {
+GetHistory getHistoryUseCase(Ref ref) {
   return GetHistory(ref.watch(historyRepositoryProvider));
 }
 
 @riverpod
 SaveIdentification saveIdentificationUseCase(
-  SaveIdentificationUseCaseRef ref,
+  Ref ref,
 ) {
   return SaveIdentification(ref.watch(historyRepositoryProvider));
 }
 
 @riverpod
 GetCurrentLocation getCurrentLocationUseCase(
-  GetCurrentLocationUseCaseRef ref,
+  Ref ref,
 ) {
   return GetCurrentLocation(ref.watch(locationRepositoryProvider));
 }

@@ -27,6 +27,7 @@ Cette commande va générer tous les fichiers `.freezed.dart` et `.g.dart` néce
 ### 2. Configuration de l'API Backend
 
 Modifiez `lib/core/constants/app_constants.dart` :
+
 ```dart
 static const String apiBaseUrl = 'http://localhost:8000/api'; // ou votre URL
 ```
@@ -34,6 +35,7 @@ static const String apiBaseUrl = 'http://localhost:8000/api'; // ou votre URL
 ### 3. Permissions natives
 
 #### Android (`android/app/src/main/AndroidManifest.xml`)
+
 Ajoutez avant `<application>` :
 
 ```xml
@@ -47,6 +49,7 @@ Ajoutez avant `<application>` :
 ```
 
 #### iOS (`ios/Runner/Info.plist`)
+
 Ajoutez dans le `<dict>` :
 
 ```xml
@@ -140,6 +143,7 @@ Ajoutez dans le `<dict>` :
 ## 🚀 Quick Start
 
 1. **Générer le code** :
+
    ```bash
    dart run build_runner build --delete-conflicting-outputs
    ```
@@ -149,6 +153,7 @@ Ajoutez dans le `<dict>` :
 3. **Ajouter les permissions** (voir ci-dessus)
 
 4. **Lancer l'app** :
+
    ```bash
    flutter run
    ```

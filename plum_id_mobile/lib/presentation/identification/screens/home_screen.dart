@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../history/screens/history_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -27,7 +28,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 32),
               
               // Explorer section
-              _buildExplorerSection(),
+              _buildExplorerSection(context),
               
               const SizedBox(height: 20),
             ],
@@ -156,7 +157,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExplorerSection() {
+  Widget _buildExplorerSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -201,7 +202,12 @@ class HomeScreen extends StatelessWidget {
                   title: "Historique",
                   subtitle: "Mes plumes",
                   onTap: () {
-                    // TODO: Navigate to history
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HistoryScreen(),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -267,20 +273,21 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(BuildContext context, ImageSource source) async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: source);
+  // todo: implement image picker
+  // Future<void> _pickImage(BuildContext context, ImageSource source) async {
+  //   final picker = ImagePicker();
+  //   final image = await picker.pickImage(source: source);
 
-    if (image != null) {
-      // TODO: Navigate to identification screen with image
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Image sélectionnée: ${image.path}'),
-            backgroundColor: AppTheme.secondaryColor,
-          ),
-        );
-      }
-    }
-  }
+  //   if (image != null) {
+  //     // TODO: Navigate to identification screen with image
+  //     if (context.mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Image sélectionnée: ${image.path}'),
+  //           backgroundColor: AppTheme.secondaryColor,
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
 }
