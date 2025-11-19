@@ -39,7 +39,7 @@ class _MainNavigatorState extends State<MainNavigator> {
         color: AppTheme.surfaceColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black12,
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
