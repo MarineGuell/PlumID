@@ -16,8 +16,6 @@ class HomeScreen extends StatelessWidget {
               // Header section
               _buildHeader(context),
               
-              const SizedBox(height: 20),
-              
               // Subtitle card
               _buildSubtitleCard(),
               
@@ -259,7 +257,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle,
                 style: TextStyle(
                   fontSize: 13,
-                  color: AppTheme.textSecondary.withOpacity(0.7),
+                  color: AppTheme.textSecondary,
                 ),
               ),
             ],
