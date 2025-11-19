@@ -1,0 +1,240 @@
+# =========================
+# Base (fourni par l'utilisateur)
+# =========================
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+# Flutter/Android build
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+plum_id_mobile/android/app/debug
+plum_id_mobile/android/app/profile
+plum_id_mobile/android/app/release
+
+
+# =========================
+# Python — général
+# =========================
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.pyd
+*.dll
+
+# Distribution / packaging
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+sdist/
+wheels/
+share/python-wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit tests / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+
+# Type checkers / linters / formatters
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+.pyright/
+.pyre_configuration.local
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+.profile_default/
+.ipython/
+
+# Translations
+*.mo
+*.pot
+
+# Django / Flask / web
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache/
+media/
+
+# Scrapy
+.scrapy/
+
+# Sphinx docs
+docs/_build/
+site/
+
+# PyBuilder
+target/
+
+# PDM / PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Cython
+cython_debug/
+
+# Environnements virtuels (venv/poetry/pipenv/conda)
+.venv
+.venv*/
+venv/
+venv*/
+ENV/
+env/
+env*/
+env.bak/
+venv.bak/
+.python-version
+pythonenv*
+conda-env/
+conda/
+*.conda-env
+
+# Dépendances outils (Poetry/Pipenv) — on garde généralement les *lock* sous contrôle
+# Si tu ne veux pas versionner les locks, décommente:
+# poetry.lock
+# Pipfile.lock
+
+# Variables d'environnement (garde un .env.example dans le repo)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# =========================
+# Éditeurs / OS
+# =========================
+
+# VS Code (décommenter si tu ne veux pas versionner la config projet)
+# .vscode/
+.vscode/*-workspace.json
+*.code-workspace
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.trash/
+.nfs*
+
+# =========================
+# Docker / conteneurs (optionnel)
+# =========================
+# Décommente si tu veux ignorer tes sorties locales
+# docker-compose.override.yml
+# .docker/
+# .dockerignore.local
+
+# =========================
+# Outils divers
+# =========================
+
+# Coverage / rapports HTML locaux
+.coverage.*
+coverage/
+coverage-html/
+
+# Logs applicatifs
+logs/
+log/
+*.log.*
+
+# Artifacts locaux
+tmp/
+temp/
+*.tmp
+
+# Lockfiles divers (si non désirés)
+*.lock
+
+# =========================
+# Fin
+# =========================
