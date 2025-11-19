@@ -75,6 +75,24 @@ class Settings(BaseSettings):
         protected_namespaces=("settings_",),
     )
 
+    # --- Anti-abuse / Rate limit ---
+    rl_default_per_min: int = Field(60, validation_alias=AliasChoices("RL_DEFAULT_PER_MIN"))
+    rl_burst: int = Field(120, validation_alias=AliasChoices("RL_BURST"))
+    rl_login_per_min: int = Field(10, validation_alias=AliasChoices("RL_LOGIN_PER_MIN"))
+    rl_window_seconds: int = Field(60, validation_alias=AliasChoices("RL_WINDOW_SECONDS"))
+
+    # --- Signature / Anti-replay ---
+    app_hmac_secret: str = Field(
+        default="CHANGE_ME_SUPER_SECRET",
+        validation_alias=AliasChoices("APP_HMAC_SECRET"),
+        description="Clé HMAC partagée avec l’app mobile"
+    )
+    max_clock_skew_sec: int = Field(300, validation_alias=AliasChoices("MAX_CLOCK_SKEW_SEC"))
+    anti_replay_ttl_sec: int = Field(600, validation_alias=AliasChoices("ANTI_REPLAY_TTL_SEC"))
+
+    # --- Body cap ---
+    max_request_body_bytes: int = Field(5_000_000, validation_alias=AliasChoices("MAX_REQUEST_BODY_BYTES"))  # 5MB
+
     # ---------------------------
     # Helpers
     # ---------------------------
