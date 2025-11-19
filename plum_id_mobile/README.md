@@ -20,7 +20,7 @@ Le projet utilise **Clean Architecture** avec **Riverpod** pour garantir :
 - ✅ Indépendance vis-à-vis des frameworks
 - ✅ Scalabilité
 
-Voir [ARCHITECTURE.md](./ARCHITECTURE.md) pour plus de détails.
+Voir [ARCHITECTURE.md](./docs/ARCHITECTURE.md) pour plus de détails.
 
 ## 📁 Structure du projet
 
