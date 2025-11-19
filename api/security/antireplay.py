@@ -63,15 +63,17 @@ class AntiReplay:
         except ValueError:
             raise HTTPException(status_code=400, detail="Bad timestamp")
 
-        # horloge
         now = int(time.time())
-        skew = abs(now - ts_val)
-        if skew > s.max_clock_skew_sec:
+        if abs(now - ts_val) > s.max_clock_skew_sec:
             raise HTTPException(status_code=401, detail="Stale timestamp")
 
-        # body (attention: body stream)
-        body = await request.body()
-        # recompute HMAC
+        # ← utilise le cache si présent (posé par BodySizeLimitMiddleware)
+        cached = request.scope.get("state", {}).get("_cached_body")
+        if cached is not None:
+            body = cached
+        else:
+            body = await request.body()
+
         base = self._signing_string(request.method, request.url.path, ts, nonce, body)
         mac = hmac.new(s.app_hmac_secret.encode("utf-8"), base, hashlib.sha256).digest()
         expected = base64.b64encode(mac).decode("ascii")
@@ -79,11 +81,9 @@ class AntiReplay:
         if not hmac.compare_digest(expected, sig_b64):
             raise HTTPException(status_code=401, detail="Bad signature")
 
-        # replay ?
         if not await self._nonce_check(nonce):
             raise HTTPException(status_code=409, detail="Replay detected")
 
-        # OK → rien à retourner (dépendance FastAPI)
         return True
 
 # Dépendance FastAPI utilisable par route:

@@ -18,3 +18,4 @@ PyJWT
 # --- Tests
 pytest>=8.3
 pytest-cov>=5.0
+python-multipart
