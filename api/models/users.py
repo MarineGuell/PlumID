@@ -1,3 +1,4 @@
+# api/models/users.py
 from __future__ import annotations
 from sqlalchemy import Column, Integer, String, DateTime, func, Boolean, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
