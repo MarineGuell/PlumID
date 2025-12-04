@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from api.core.security import (
     create_access_token,
     create_email_verification_token,
+    create_password_reset_token,
     decode_access_token,
 )
 from api.crud.users import (
@@ -18,12 +19,20 @@ from api.crud.users import (
     create_user,
     get_user_by_mail,
     get_user_by_id,
+    update_user_password,
 )
 from api.db import get_db
 from api.dependencies.auth import get_current_user
 from api.models.users import Users
-from api.schemas.users import UserCreate, UserLogin, UserOut, Token
-from api.services.email import send_verification_email
+from api.schemas.users import (
+    UserCreate,
+    UserLogin,
+    UserOut,
+    Token,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+)
+from api.services.email import send_verification_email, send_password_reset_email
 from api.settings import settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -64,9 +73,7 @@ def register(
     # Génération du token de vérification (valide 24h)
     token = create_email_verification_token(user_id=user.idusers, expires_hours=24)
 
-    # Lien de vérification.
-    # Ici on part du principe que le frontend a une page /verify-email
-    # qui lira le token dans l'URL et appellera ensuite l'API si besoin.
+    # Lien de vérification (frontend)
     verification_link = f"{FRONTEND_BASE_URL}/verify-email?token={token}"
 
     # Envoi de l'email
@@ -78,11 +85,6 @@ def register(
         logger.exception(
             "Échec de l'envoi de l'email de vérification à %s", user.mail
         )
-        # À toi de décider: raise pour bloquer, ou juste log (ici on log seulement)
-        # raise HTTPException(
-        #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        #     detail="Impossible d'envoyer l'email de vérification.",
-        # )
 
     return user
 
@@ -183,3 +185,88 @@ def verify_email(token: str, db: Annotated[Session, Depends(get_db)]):
     db.refresh(user)
 
     return {"message": "Adresse email vérifiée avec succès."}
+
+
+@router.post("/request-password-reset")
+def request_password_reset(
+    payload: PasswordResetRequest,
+    db: Annotated[Session, Depends(get_db)],
+):
+    """
+    Demande de réinitialisation de mot de passe.
+
+    - Cherche l'utilisateur par email
+    - Si trouvé, génère un token scope='password_reset'
+      et envoie un email avec un lien de réinitialisation.
+    - Toujours renvoyer un message générique (pour ne pas leak l'existence d'un compte).
+    """
+    user = get_user_by_mail(db, mail=payload.mail)
+
+    if user:
+        try:
+            token = create_password_reset_token(user_id=user.idusers, expires_minutes=60)
+            reset_link = f"{FRONTEND_BASE_URL}/reset-password?token={token}"
+            send_password_reset_email(user.mail, reset_link)
+            logger.info("Email de reset de mot de passe envoyé à %s", user.mail)
+        except Exception:
+            logger.exception(
+                "Échec de l'envoi de l'email de reset de mot de passe à %s", user.mail
+            )
+            # On NE renvoie pas d'erreur explicite au client pour éviter le leak.
+
+    return {
+        "message": (
+            "Si un compte existe pour cet email, un lien de réinitialisation a été envoyé."
+        )
+    }
+
+
+@router.post("/reset-password")
+def reset_password(
+    payload: PasswordResetConfirm,
+    db: Annotated[Session, Depends(get_db)],
+):
+    """
+    Applique la réinitialisation de mot de passe.
+
+    - Vérifie et décode le token (scope='password_reset')
+    - Met à jour le mot de passe de l'utilisateur
+    """
+    from jose import JWTError
+
+    try:
+        token_payload = decode_access_token(payload.token)
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token de réinitialisation invalide ou expiré.",
+        )
+
+    scope = token_payload.get("scope")
+    sub = token_payload.get("sub")
+
+    if scope != "password_reset" or sub is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token de réinitialisation invalide.",
+        )
+
+    try:
+        user_id = int(sub)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token de réinitialisation invalide.",
+        )
+
+    user = get_user_by_id(db, user_id=user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Utilisateur introuvable.",
+        )
+
+    # Met à jour le mot de passe
+    update_user_password(db, user=user, new_password=payload.new_password)
+
+    return {"message": "Mot de passe mis à jour avec succès."}

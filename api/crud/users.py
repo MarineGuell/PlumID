@@ -55,3 +55,21 @@ def authenticate_user(
     if not verify_password(password, user.password_hash):
         return None
     return user
+
+
+def update_user_password(
+    db: Session,
+    *,
+    user: Users,
+    new_password: str,
+) -> Users:
+    """
+    Met à jour le mot de passe d'un utilisateur (avec hash).
+
+    Ne gère que le mot de passe, commit inclus.
+    """
+    user.password_hash = hash_password(new_password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user

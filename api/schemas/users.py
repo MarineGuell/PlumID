@@ -50,5 +50,25 @@ class TokenPayload(BaseModel):
     sub: Optional[str] = None
     role: Optional[str] = None
     exp: Optional[int] = None
-    # Scope du token : ex. "access" ou "email_verify"
+    # Scope du token : ex. "access", "email_verify", "password_reset"
     scope: Optional[str] = None
+
+
+class PasswordResetRequest(BaseModel):
+    """
+    Payload pour demander une réinitialisation de mot de passe.
+    """
+    mail: EmailStr = Field(..., description="Adresse email du compte à réinitialiser")
+
+
+class PasswordResetConfirm(BaseModel):
+    """
+    Payload pour appliquer une réinitialisation de mot de passe.
+    """
+    token: str = Field(..., description="Token de réinitialisation reçu par email")
+    new_password: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        description="Nouveau mot de passe",
+    )
