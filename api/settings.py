@@ -10,8 +10,14 @@ class Settings(BaseSettings):
     # API / Logging
     # ---------------------------
     api_version: str = "1.0.0"
-    log_level: str = Field(default="INFO", validation_alias=AliasChoices("LOG_LEVEL"))
-    log_sensitive: bool = Field(default=False, validation_alias=AliasChoices("LOG_SENSITIVE"))
+    log_level: str = Field(
+        default="INFO",
+        validation_alias=AliasChoices("LOG_LEVEL"),
+    )
+    log_sensitive: bool = Field(
+        default=False,
+        validation_alias=AliasChoices("LOG_SENSITIVE"),
+    )
 
     # ---------------------------
     # Auth (API key service-to-service)
@@ -50,19 +56,87 @@ class Settings(BaseSettings):
     # 1) DATABASE_URL (recommandé, ex: mysql+pymysql://user:pass@host:3306/db?charset=utf8mb4)
     # 2) Construction à partir des champs ci-dessous si DATABASE_URL vide
     # ---------------------------
-    database_url: str = Field(default="", validation_alias=AliasChoices("DATABASE_URL"))
+    database_url: str = Field(
+        default="",
+        validation_alias=AliasChoices("DATABASE_URL"),
+    )
 
-    ip_db: str = Field(default="localhost", validation_alias=AliasChoices("IP_DB", "DB_HOST"))
-    port_db: str = Field(default="3306", validation_alias=AliasChoices("PORT_DB", "DB_PORT"))
-    user_db: str = Field(default="user", validation_alias=AliasChoices("USER_DB", "DB_USER"))
-    password_db: str = Field(default="user", validation_alias=AliasChoices("MDP_DB", "DB_PASSWORD"))
-    name_db: str = Field(default="plumid", validation_alias=AliasChoices("NAME_DB", "DB_NAME"))
-    db_charset: str = Field(default="utf8mb4", validation_alias=AliasChoices("DB_CHARSET"))
+    ip_db: str = Field(
+        default="localhost",
+        validation_alias=AliasChoices("IP_DB", "DB_HOST"),
+    )
+    port_db: str = Field(
+        default="3306",
+        validation_alias=AliasChoices("PORT_DB", "DB_PORT"),
+    )
+    user_db: str = Field(
+        default="user",
+        validation_alias=AliasChoices("USER_DB", "DB_USER"),
+    )
+    password_db: str = Field(
+        default="user",
+        validation_alias=AliasChoices("MDP_DB", "DB_PASSWORD"),
+    )
+    name_db: str = Field(
+        default="plumid",
+        validation_alias=AliasChoices("NAME_DB", "DB_NAME"),
+    )
+    db_charset: str = Field(
+        default="utf8mb4",
+        validation_alias=AliasChoices("DB_CHARSET"),
+    )
 
     # Pool & SSL (optionnels)
-    db_pool_size: int = Field(default=5, validation_alias=AliasChoices("DB_POOL_SIZE"))
-    db_max_overflow: int = Field(default=10, validation_alias=AliasChoices("DB_MAX_OVERFLOW"))
-    mysql_ssl_ca: str = Field(default="", validation_alias=AliasChoices("MYSQL_SSL_CA"))
+    db_pool_size: int = Field(
+        default=5,
+        validation_alias=AliasChoices("DB_POOL_SIZE"),
+    )
+    db_max_overflow: int = Field(
+        default=10,
+        validation_alias=AliasChoices("DB_MAX_OVERFLOW"),
+    )
+    mysql_ssl_ca: str = Field(
+        default="",
+        validation_alias=AliasChoices("MYSQL_SSL_CA"),
+    )
+
+    # ---------------------------
+    # SMTP / Email (vérification d'email)
+    # ---------------------------
+    smtp_host: str = Field(
+        default="localhost",
+        validation_alias=AliasChoices("SMTP_HOST"),
+        description="Hôte SMTP pour l'envoi des emails",
+    )
+    smtp_port: int = Field(
+        default=25,
+        validation_alias=AliasChoices("SMTP_PORT"),
+        description="Port SMTP",
+    )
+    smtp_user: str = Field(
+        default="",
+        validation_alias=AliasChoices("SMTP_USER"),
+        description="Utilisateur SMTP (optionnel)",
+    )
+    smtp_password: str = Field(
+        default="",
+        validation_alias=AliasChoices("SMTP_PASSWORD"),
+        description="Mot de passe SMTP (optionnel)",
+    )
+    smtp_from: str = Field(
+        default="no-reply@plumid.local",
+        validation_alias=AliasChoices("SMTP_FROM"),
+        description="Adresse d'expéditeur pour les emails sortants",
+    )
+
+    # ---------------------------
+    # Frontend (pour les liens de vérification d'email, reset password, etc.)
+    # ---------------------------
+    frontend_base_url: str = Field(
+        default="http://localhost:5173",
+        validation_alias=AliasChoices("FRONTEND_BASE_URL"),
+        description="URL de base du frontend pour construire les liens (ex: vérification d'email)",
+    )
 
     # ---------------------------
     # pydantic-settings v2
@@ -81,8 +155,9 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> list[str]:
         raw = (self.cors_allow_origins or "").strip()
-        if not raw:
-            return []
+        if not raw or raw == "*":
+            # "*" -> on laisse FastAPI gérer comme origines ouvertes
+            return ["*"]
         return [s.strip() for s in raw.split(",") if s.strip()]
 
     @property
@@ -95,7 +170,10 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-        # Privilégie DATABASE_URL si fourni, sinon construit un DSN MySQL complet
+        """
+        Privilégie DATABASE_URL si fourni, sinon construit un DSN MySQL complet.
+        Pour utiliser SQLite en dev, il suffit de mettre DATABASE_URL=sqlite:///./app.db
+        """
         return self.database_url.strip() or self.mysql_dsn
 
 
