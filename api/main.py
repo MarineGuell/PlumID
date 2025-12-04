@@ -20,6 +20,7 @@ from .routes.health import router as health_router
 from .routes.species import router as species_router
 from .routes.feathers import router as feathers_router
 from .routes.pictures import router as pictures_router
+from .routes.auth import router as auth_router
 
 log = logging.getLogger("uvicorn")
 
@@ -29,7 +30,7 @@ app = FastAPI(title="Plum'ID - API", version=settings.api_version)
 install_tracing(app)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins or ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -69,3 +70,4 @@ app.include_router(health_router)
 app.include_router(species_router)
 app.include_router(feathers_router)
 app.include_router(pictures_router)
+app.include_router(auth_router)
