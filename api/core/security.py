@@ -8,7 +8,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from api.settings import settings
-from api.models.users import Users  # si ça crée une boucle, fais l'import dans la fonction
 
 ALGORITHM = "HS256"
 
@@ -56,6 +55,7 @@ def decode_access_token(token: str) -> Dict[str, Any]:
     payload = jwt.decode(token, settings.auth_secret, algorithms=[ALGORITHM])
     return payload
 
+
 def create_email_verification_token(user_id: int, expires_hours: int = 24) -> str:
     """
     Crée un JWT dédié à la vérification d'email.
@@ -69,4 +69,20 @@ def create_email_verification_token(user_id: int, expires_hours: int = 24) -> st
     return create_access_token(
         data={"sub": str(user_id), "scope": "email_verify"},
         expires_delta=timedelta(hours=expires_hours),
+    )
+
+
+def create_password_reset_token(user_id: int, expires_minutes: int = 60) -> str:
+    """
+    Crée un JWT dédié à la réinitialisation de mot de passe.
+
+    - sub  : identifiant utilisateur
+    - scope: 'password_reset'
+    - exp  : maintenant + expires_minutes (par défaut 60 min)
+    """
+    from datetime import timedelta  # local pour éviter certains cycles tordus
+
+    return create_access_token(
+        data={"sub": str(user_id), "scope": "password_reset"},
+        expires_delta=timedelta(minutes=expires_minutes),
     )

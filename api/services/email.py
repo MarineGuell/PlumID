@@ -38,6 +38,19 @@ def _get_smtp_client() -> smtplib.SMTP:
     return client
 
 
+def _send_email(msg: EmailMessage) -> None:
+    """
+    Envoi générique d'un EmailMessage via SMTP.
+    """
+    try:
+        with _get_smtp_client() as server:
+            server.send_message(msg)
+        logger.info("Email envoyé à %s", msg["To"])
+    except Exception:
+        logger.exception("Impossible d'envoyer l'email à %s", msg.get("To"))
+        raise
+
+
 def send_verification_email(to_email: str, verification_link: str) -> None:
     """
     Envoie un email de vérification contenant un lien.
@@ -70,11 +83,32 @@ L'équipe Plum'ID
 """
     )
 
-    try:
-        with _get_smtp_client() as server:
-            server.send_message(msg)
-        logger.info("Email de vérification envoyé à %s", to_email)
-    except Exception:
-        # On logge l'erreur et on relance : à toi de décider si tu veux vraiment relancer
-        logger.exception("Impossible d'envoyer l'email de vérification à %s", to_email)
-        raise
+    _send_email(msg)
+
+
+def send_password_reset_email(to_email: str, reset_link: str) -> None:
+    """
+    Envoie un email de réinitialisation de mot de passe contenant un lien.
+    """
+    msg = EmailMessage()
+    msg["Subject"] = "Plum’ID - Réinitialisation de ton mot de passe"
+    msg["From"] = settings.smtp_from
+    msg["To"] = to_email
+
+    msg.set_content(
+        f"""Bonjour,
+
+        Une demande de réinitialisation de mot de passe a été effectuée pour ce compte Plum'ID.
+        
+        Si tu es à l'origine de cette demande, clique sur le lien suivant pour choisir un nouveau mot de passe :
+        {reset_link}
+        
+        Si tu n'es pas à l'origine de cette demande, tu peux ignorer cet email.
+        Le lien expirera automatiquement après un certain temps.
+        
+        —
+        L'équipe Plum'ID
+        """
+    )
+
+    _send_email(msg)
