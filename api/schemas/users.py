@@ -15,6 +15,8 @@ class UserBase(BaseModel):
     is_verified: Optional[bool] = None
     # Date/heure de vérification (UTC)
     email_verified_at: Optional[datetime] = None
+    # Nouveau : statut d'activation du compte
+    is_active: Optional[bool] = None
 
 
 class UserCreate(BaseModel):
@@ -71,4 +73,14 @@ class PasswordResetConfirm(BaseModel):
         min_length=8,
         max_length=128,
         description="Nouveau mot de passe",
+    )
+
+
+class ResendVerificationRequest(BaseModel):
+    """
+    Payload pour redemander un email de vérification.
+    """
+    mail: EmailStr = Field(
+        ...,
+        description="Adresse email du compte à vérifier",
     )
