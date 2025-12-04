@@ -12,6 +12,7 @@ SQLAlchemy>=2.0
 PyMySQL
 
 # --- Encrypters
+python-jose[cryptography]
 passlib[bcrypt]
 PyJWT
 
