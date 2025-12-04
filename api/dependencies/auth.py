@@ -5,58 +5,83 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
 from sqlalchemy.orm import Session
 
 from api.core.security import decode_access_token
-from api.db import get_db
-from api.schemas.users import TokenPayload
 from api.crud.users import get_user_by_id
+from api.db import get_db
 from api.models.users import Users
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-
-def _credentials_exception() -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-
-def _get_token_payload(token: str) -> TokenPayload:
-    from jose import JWTError  # import local pour éviter cycles
-
-    try:
-        payload_dict = decode_access_token(token)
-    except JWTError:
-        raise _credentials_exception()
-
-    try:
-        payload = TokenPayload(**payload_dict)
-    except Exception:
-        raise _credentials_exception()
-
-    if payload.sub is None:
-        raise _credentials_exception()
-
-    return payload
+# Utilisé pour documenter l'auth dans OpenAPI (Swagger)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_current_user(
-    db: Annotated[Session, Depends(get_db)],
     token: Annotated[str, Depends(oauth2_scheme)],
+    db: Annotated[Session, Depends(get_db)],
 ) -> Users:
-    """Dépendance FastAPI: retourne l'utilisateur courant à partir du Bearer token."""
-    payload = _get_token_payload(token)
+    """
+    Récupère l'utilisateur courant à partir du Bearer token.
+
+    - Décode le JWT
+    - Récupère l'utilisateur par ID
+    - Lève 401 si token invalide ou utilisateur introuvable
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Impossible de valider les identifiants.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
     try:
-        user_id = int(payload.sub)
+        payload = decode_access_token(token)
+    except JWTError:
+        raise credentials_exception
+
+    sub = payload.get("sub")
+    if sub is None:
+        raise credentials_exception
+
+    try:
+        user_id = int(sub)
     except ValueError:
-        raise _credentials_exception()
+        raise credentials_exception
 
     user = get_user_by_id(db, user_id=user_id)
     if user is None:
-        raise _credentials_exception()
+        raise credentials_exception
 
     return user
+
+
+def get_current_active_user(
+    current_user: Annotated[Users, Depends(get_current_user)],
+) -> Users:
+    """
+    Vérifie que le compte est actif.
+
+    - Lève 403 si `is_active` est False
+    """
+    if current_user.is_active is False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Compte désactivé. Contacte un administrateur.",
+        )
+    return current_user
+
+
+def require_admin(
+    current_user: Annotated[Users, Depends(get_current_active_user)],
+) -> Users:
+    """
+    Vérifie que l'utilisateur a un rôle administrateur.
+
+    - Lève 403 si le rôle n'est pas 'admin'
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé aux administrateurs.",
+        )
+    return current_user

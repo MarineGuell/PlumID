@@ -31,6 +31,7 @@ from api.schemas.users import (
     Token,
     PasswordResetRequest,
     PasswordResetConfirm,
+    ResendVerificationRequest,
 )
 from api.services.email import send_verification_email, send_password_reset_email
 from api.settings import settings
@@ -53,7 +54,7 @@ def register(
 
     - Vérifie l'unicité de l'email
     - Hash le mot de passe
-    - Crée un compte non vérifié (is_verified = False)
+    - Crée un compte non vérifié (is_verified = False, is_active = True)
     - Envoie un email de vérification
     """
     existing = get_user_by_mail(db, mail=payload.mail)
@@ -99,6 +100,7 @@ def login(
 
     - Vérifie mail + mot de passe
     - Vérifie que l'email est confirmé (is_verified)
+    - Vérifie que le compte est actif (is_active)
     - Retourne un JWT Bearer en cas de succès
     """
     user = authenticate_user(db, mail=payload.mail, password=payload.password)
@@ -112,6 +114,12 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Adresse email non vérifiée. Merci de vérifier ton email.",
+        )
+
+    if user.is_active is False:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Compte désactivé. Contacte un administrateur.",
         )
 
     token = create_access_token(
@@ -187,6 +195,40 @@ def verify_email(token: str, db: Annotated[Session, Depends(get_db)]):
     return {"message": "Adresse email vérifiée avec succès."}
 
 
+@router.post("/resend-verification")
+def resend_verification(
+    payload: ResendVerificationRequest,
+    db: Annotated[Session, Depends(get_db)],
+):
+    """
+    Renvoie un email de vérification si le compte existe et n'est pas encore vérifié.
+
+    Réponse volontairement générique pour ne pas leak la présence d'un compte.
+    """
+    user = get_user_by_mail(db, mail=payload.mail)
+
+    if user and not user.is_verified:
+        try:
+            token = create_email_verification_token(
+                user_id=user.idusers,
+                expires_hours=24,
+            )
+            verification_link = f"{FRONTEND_BASE_URL}/verify-email?token={token}"
+            send_verification_email(user.mail, verification_link)
+            logger.info("Email de vérification renvoyé à %s", user.mail)
+        except Exception:
+            logger.exception(
+                "Erreur lors du renvoi de l'email de vérification pour %s",
+                user.mail,
+            )
+
+    return {
+        "message": (
+            "Si un compte non vérifié existe pour cet email, un nouveau lien de vérification a été envoyé."
+        )
+    }
+
+
 @router.post("/request-password-reset")
 def request_password_reset(
     payload: PasswordResetRequest,
@@ -204,7 +246,10 @@ def request_password_reset(
 
     if user:
         try:
-            token = create_password_reset_token(user_id=user.idusers, expires_minutes=60)
+            token = create_password_reset_token(
+                user_id=user.idusers,
+                expires_minutes=60,
+            )
             reset_link = f"{FRONTEND_BASE_URL}/reset-password?token={token}"
             send_password_reset_email(user.mail, reset_link)
             logger.info("Email de reset de mot de passe envoyé à %s", user.mail)
