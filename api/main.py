@@ -21,6 +21,7 @@ from .routes.health import router as health_router
 from .routes.species import router as species_router
 from .routes.feathers import router as feathers_router
 from .routes.pictures import router as pictures_router
+from .routes.auth import router as auth_router
 
 log = logging.getLogger("uvicorn")
 
@@ -55,7 +56,7 @@ app.add_middleware(
 allow_origins = getattr(settings, "cors_origins", None) or ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins,
+    allow_origins=settings.cors_origins or ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
@@ -142,3 +143,4 @@ app.include_router(health_router)
 app.include_router(species_router)
 app.include_router(feathers_router)
 app.include_router(pictures_router)
+app.include_router(auth_router)
