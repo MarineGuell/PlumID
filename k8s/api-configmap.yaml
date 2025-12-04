@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plumid-api-config
+  namespace: plumid
+data:
+  # Logs
+  LOG_LEVEL: "INFO"
+  LOG_SENSITIVE: "0"
+
+  # CORS pour ton front (à adapter selon ton domaine réel)
+  CORS_ALLOW_ORIGINS: "http://localhost:3000,https://plumid.example.com"
+
+  # URL de base du front (utilisée pour les liens d’email)
+  FRONTEND_BASE_URL: "https://plumid.example.com"
+
+  # Auth JWT
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+
+  # SMTP (partie non sensible)
+  SMTP_HOST: "smtp.example.com"
+  SMTP_PORT: "587"
+  SMTP_FROM: "no-reply@plumid.example.com"
