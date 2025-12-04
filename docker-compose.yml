@@ -1,0 +1,72 @@
+# docker-compose.yml
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: plumid-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: plumid
+      MYSQL_USER: plumid
+      MYSQL_PASSWORD: plumid_password
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  api:
+    build:
+      context: ./api
+    container_name: plumid-api
+    restart: unless-stopped
+    depends_on:
+      - db
+      - ml
+    env_file:
+      - .env
+    environment:
+      # On force DATABASE_URL à utiliser le host 'db' (nom du service docker)
+      DATABASE_URL: mysql+pymysql://plumid:plumid_password@db:3306/plumid?charset=utf8mb4
+      # Si pas déjà dans ton .env, tu peux les garder ici :
+      # AUTH_SECRET: "change_me_in_prod"
+      # PLUMID_API_KEY: "internal_api_key_for_services"
+      FRONTEND_BASE_URL: "http://localhost:3000"
+      ML_URL: "http://ml:9000"   # futur endpoint de ton modèle IA
+    ports:
+      - "8000:8000"
+    command: >
+      uvicorn api.main:app
+      --host 0.0.0.0
+      --port 8000
+
+  ml:
+    build:
+      context: ./ml
+    container_name: plumid-ml
+    restart: unless-stopped
+    environment:
+      # Exemple d’ENV si ton modèle en a besoin
+      MODEL_PATH: "/models/plumid_model.onnx"
+    volumes:
+      - ./ml/models:/models
+    ports:
+      - "9000:9000"
+    # command: "python main.py"  # adapte selon ton serveur modèle (FastAPI, Flask, etc.)
+
+  web:
+    build:
+      context: ./web
+    container_name: plumid-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      # Exemple pour ton front :
+      VITE_API_URL: "http://localhost:8000"
+    ports:
+      - "3000:80"  # si ton Dockerfile build une app statique servie par nginx
+
+volumes:
+  db_data:

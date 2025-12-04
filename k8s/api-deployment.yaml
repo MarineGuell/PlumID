@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plumid-api
+  namespace: plumid
+  labels:
+    app: plumid-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: plumid-api
+  template:
+    metadata:
+      labels:
+        app: plumid-api
+    spec:
+      containers:
+        - name: api
+          # remplace par l'image que tu pushes dans ton registry
+          image: your-registry.example.com/plumid-api:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8000
+
+          # On récupère toutes les variables d'env depuis ConfigMap + Secret
+          envFrom:
+            - configMapRef:
+                name: plumid-api-config
+            - secretRef:
+                name: plumid-api-secrets
+
+          # Probes pour que K8s sache si le pod est alive/ready
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
