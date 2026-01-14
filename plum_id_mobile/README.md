@@ -56,27 +56,27 @@ lib/
     ├── providers/       # Infrastructure (Dio, Repos, Use Cases)
     ├── widgets/         # Widgets communs
     ├── home/            # Feature: Page d'accueil & Identification
-    │   ├── providers/   # State management de la feature
+    │   ├── notifiers/   # State management de la feature
     │   ├── screens/
     │   └── widgets/
     ├── import/          # Feature: Import d'images
-    │   ├── providers/
+    │   ├── notifiers/
     │   ├── screens/
     │   └── widgets/
     ├── explorer/        # Feature: Explorer les espèces
-    │   ├── providers/
+    │   ├── notifiers/
     │   ├── screens/
     │   └── widgets/
     ├── profile/         # Feature: Profil utilisateur
-    │   ├── providers/
+    │   ├── notifiers/
     │   ├── screens/
     │   └── widgets/
     ├── history/         # Feature: Historique
-    │   ├── providers/   # State management de la feature
+    │   ├── notifiers/   # State management de la feature
     │   ├── screens/
     │   └── widgets/
     └── species_detail/  # Feature: Détails espèce
-        ├── providers/   # State management de la feature
+        ├── notifiers/   # State management de la feature
         ├── screens/
         └── widgets/
 ```

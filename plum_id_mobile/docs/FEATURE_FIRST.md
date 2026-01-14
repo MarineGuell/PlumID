@@ -27,13 +27,13 @@ lib/presentation/
 ├── providers/
 │   └── providers.dart              # Infrastructure uniquement
 ├── identification/
-│   ├── providers/                  # State management de la feature
+│   ├── notifiers/                  # State management de la feature
 │   │   ├── identification_provider.dart
 │   │   └── README.md
 │   ├── screens/
 │   └── widgets/
 └── history/
-    ├── providers/                  # State management de la feature
+    ├── notifiers/                  # State management de la feature
     │   ├── history_provider.dart
     │   └── README.md
     ├── screens/
@@ -61,19 +61,19 @@ lib/presentation/
 ### 1. Créer la structure
 
 ```bash
-mkdir -p lib/presentation/ma_feature/providers
+mkdir -p lib/presentation/ma_feature/notifiers
 mkdir -p lib/presentation/ma_feature/screens
 mkdir -p lib/presentation/ma_feature/widgets
 ```
 
 ### 2. Copier le template
 
-Copiez le template depuis `species_detail/providers/README.md` et adaptez-le.
+Copiez le template depuis `species_detail/notifiers/README.md` et adaptez-le.
 
 ### 3. Créer le provider
 
 ```dart
-// lib/presentation/ma_feature/providers/ma_feature_provider.dart
+// lib/presentation/ma_feature/notifiers/ma_feature_provider.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../domain/entities/mon_entite.dart';
 import '../../../domain/usecases/mon_usecase.dart';
@@ -123,7 +123,7 @@ dart run build_runner build --delete-conflicting-outputs
 
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/ma_feature_provider.dart';
+import '../notifiers/ma_feature_provider.dart';
 
 class MonWidget extends ConsumerWidget {
   @override
@@ -139,7 +139,7 @@ class MonWidget extends ConsumerWidget {
 
 ### ✅ À faire
 
-- Créer un provider par feature dans `presentation/{feature}/providers/`
+- Créer un notifier par feature dans `presentation/{feature}/notifiers/`
 - Importer `../../providers/providers.dart` pour accéder aux use cases
 - Utiliser les use cases du Domain (jamais d'appels directs aux repositories)
 - Gérer les états de chargement et d'erreur
@@ -147,10 +147,10 @@ class MonWidget extends ConsumerWidget {
 
 ### ❌ À éviter
 
-- Ne pas mettre de logique métier dans les providers
-- Ne pas importer des classes de la couche Data dans les providers de feature
+- Ne pas mettre de logique métier dans les notifiers
+- Ne pas importer des classes de la couche Data dans les notifiers de feature
 - Ne pas faire d'appels HTTP directement
-- Ne pas créer de providers dans le dossier central `presentation/providers/` (sauf infrastructure)
+- Ne pas créer de notifiers dans le dossier central `presentation/providers/` (sauf infrastructure)
 
 ## 📦 Que contient `providers.dart` central ?
 
@@ -161,13 +161,13 @@ Le fichier `lib/presentation/providers/providers.dart` contient **uniquement** :
 3. **Repositories** : Implémentations concrètes
 4. **Use Cases** : Instances des use cases
 
-**Il ne contient PLUS de providers de state management** (ceux-ci sont dans chaque feature).
+**Il ne contient PLUS de notifiers de state management** (ceux-ci sont dans chaque feature).
 
 ## 🧪 Tests
 
 Créez vos tests dans :
 ```
-test/presentation/ma_feature/providers/
+test/presentation/ma_feature/notifiers/
 ```
 
 ## 🤝 Contribuer
@@ -175,20 +175,23 @@ test/presentation/ma_feature/providers/
 Lors de l'ajout d'une nouvelle feature :
 
 1. Suivez la structure existante
-2. Créez un README.md dans le dossier `providers/` de votre feature
+2. Créez un README.md dans le dossier `notifiers/` de votre feature
 3. Documentez les actions et le state
 4. Ajoutez des tests
 
 ## 🆘 FAQ
 
-**Q: Puis-je partager un provider entre plusieurs features ?**  
+**Q: Puis-je partager un notifier entre plusieurs features ?**  
 R: Oui, créez-le dans `presentation/providers/` et ajoutez un commentaire expliquant qu'il est partagé.
 
 **Q: Dois-je réorganiser Domain et Data en Feature-First aussi ?**  
 R: Non, ils restent en Layer-First car ils sont réutilisés entre features.
 
-**Q: Comment savoir si un provider doit être dans providers.dart central ?**  
-R: S'il gère de l'infrastructure (Dio, DB, etc.) → central. S'il gère du state métier → dans la feature.
+**Q: Comment savoir si un notifier doit être dans providers.dart central ?**  
+R: S'il gère de l'infrastructure (Dio, DB, etc.) → central. S'il gère du state métier → dans la feature (notifiers/).
+
+**Q: Quelle est la différence entre `providers/` central et `notifiers/` par feature ?**  
+R: `providers/` central = Infrastructure (Dio, repos, use cases). `notifiers/` par feature = State management (Riverpod Notifiers).
 
 ---
 

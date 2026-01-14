@@ -17,7 +17,7 @@ Provider principal pour la fonctionnalité d'historique des identifications :
 
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/history_provider.dart';
+import '../notifiers/history_provider.dart';
 
 class MyWidget extends ConsumerWidget {
   @override

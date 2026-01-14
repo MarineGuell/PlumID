@@ -17,7 +17,7 @@ Provider principal pour l'identification d'oiseaux depuis la page d'accueil :
 
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/identification_provider.dart';
+import '../notifiers/identification_provider.dart';
 
 class MyWidget extends ConsumerWidget {
   @override

@@ -14,48 +14,48 @@ presentation/
 │   └── providers.dart      # Dio, SharedPrefs, Repositories, Use Cases
 ├── widgets/               # Widgets réutilisables communs
 ├── home/                  # Feature: Page d'accueil & Identification
-│   ├── providers/         # State management pour cette feature
+│   ├── notifiers/         # State management pour cette feature
 │   │   └── identification_provider.dart
 │   ├── screens/
 │   │   └── home_screen.dart
 │   └── widgets/
 ├── import/               # Feature: Import d'images
-│   ├── providers/
+│   ├── notifiers/
 │   ├── screens/
 │   │   └── import_screen.dart
 │   └── widgets/
 ├── explorer/             # Feature: Explorer les espèces
-│   ├── providers/
+│   ├── notifiers/
 │   ├── screens/
 │   │   └── explorer_screen.dart
 │   └── widgets/
 ├── profile/              # Feature: Profil utilisateur
-│   ├── providers/
+│   ├── notifiers/
 │   ├── screens/
 │   │   └── profile_screen.dart
 │   └── widgets/
 ├── history/              # Feature: Historique
-│   ├── providers/        # State management pour cette feature
+│   ├── notifiers/        # State management pour cette feature
 │   │   └── history_provider.dart
 │   ├── screens/
 │   └── widgets/
 └── species_detail/       # Feature: Détails d'une espèce
-    ├── providers/        # State management pour cette feature
+    ├── notifiers/        # State management pour cette feature
     ├── screens/
     └── widgets/
 ```
 
 **Responsabilités** :
 - Afficher l'UI
-- Gérer l'état via Riverpod (providers par feature)
+- Gérer l'état via Riverpod (notifiers par feature)
 - Réagir aux interactions utilisateur
-- Appeler les use cases via les providers
+- Appeler les use cases via les notifiers
 
 **Règles** :
 - ❌ Pas de logique métier
 - ❌ Pas d'appels directs aux repositories
 - ✅ Widgets purs et réactifs
-- ✅ Providers de state management dans chaque feature
+- ✅ Notifiers de state management dans chaque feature
 - ✅ `providers.dart` central contient uniquement l'infrastructure
 
 ---
@@ -250,7 +250,7 @@ Ce projet utilise une **approche hybride** optimale :
   - Facilite la réutilisation entre features
 
 - **Presentation** : Organisé par **feature** (feature-first) ✅
-  - Chaque feature contient ses propres providers de state management
+  - Chaque feature contient ses propres notifiers de state management
   - Tout le code d'une feature est regroupé au même endroit
   - Facilite la scalabilité et le travail d'équipe
 
@@ -272,15 +272,15 @@ lib/
     │   └── providers.dart      # Infrastructure uniquement
     ├── widgets/                # Widgets partagés
     ├── identification/
-    │   ├── providers/          # State management de la feature
+    │   ├── notifiers/          # State management de la feature
     │   ├── screens/
     │   └── widgets/
     ├── history/
-    │   ├── providers/          # State management de la feature
+    │   ├── notifiers/          # State management de la feature
     │   ├── screens/
     │   └── widgets/
     └── [future_feature]/       # Prêt pour de nouvelles features
-        ├── providers/
+        ├── notifiers/
         ├── screens/
         └── widgets/
 ```
@@ -313,9 +313,9 @@ lib/
    - `IdentifyBird`, `GetHistory`, `SaveIdentification`...
    - Chacun fait une seule chose bien
 
-5. **Providers organisés par contexte**
+5. **Notifiers organisés par contexte**
    - `providers.dart` central = Infrastructure (Dio, repos, use cases)
-   - Providers de state management = Dans chaque feature
+   - Notifiers de state management = Dans chaque feature
    - Facilite l'ajout de nouvelles fonctionnalités
 
 6. **Feature-First dans Presentation**
