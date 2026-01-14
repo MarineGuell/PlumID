@@ -31,12 +31,12 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 5),
-                
+
                 // Logo
                 _buildLogo(),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Auth Form Card
                 Container(
                   padding: const EdgeInsets.all(24),
@@ -57,42 +57,42 @@ class _AuthScreenState extends State<AuthScreen> {
                       // Title
                       Text(
                         _isLogin ? 'Connexion' : 'Inscription',
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.displaySmall?.copyWith(
                           color: AppTheme.textPrimary,
                           fontSize: 28,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      
+
                       const SizedBox(height: 8),
-                      
+
                       Text(
-                        _isLogin 
-                          ? 'Connectez-vous pour accéder à votre compte'
-                          : 'Créez un compte pour commencer',
+                        _isLogin
+                            ? 'Connectez-vous pour accéder à votre compte'
+                            : 'Créez un compte pour commencer',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppTheme.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Form
-                      _isLogin 
-                        ? const LoginForm()
-                        : const RegisterForm(),
-                      
+                      _isLogin ? const LoginForm() : const RegisterForm(),
+
                       const SizedBox(height: 24),
-                      
+
                       // Toggle button
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _isLogin 
-                              ? "Pas encore de compte ?"
-                              : "Déjà un compte ?",
+                            _isLogin
+                                ? "Pas encore de compte ?"
+                                : "Déjà un compte ?",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           TextButton(
@@ -102,6 +102,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               style: const TextStyle(
                                 color: AppTheme.secondaryColor,
                                 fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
@@ -110,7 +111,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 40),
               ],
             ),
@@ -123,11 +124,10 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget _buildLogo() {
     return Column(
       children: [
-          Lottie.asset(
-            'assets/lotties/happy_bird.json',
-            fit: BoxFit.contain,
-            width: 150
-          
+        Lottie.asset(
+          'assets/lotties/happy_bird.json',
+          fit: BoxFit.contain,
+          width: 150,
         ),
         const SizedBox(height: 16),
         Text(

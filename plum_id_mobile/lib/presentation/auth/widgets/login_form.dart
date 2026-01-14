@@ -90,9 +90,7 @@ class _LoginFormState extends State<LoginForm> {
               if (value == null || value.isEmpty) {
                 return 'Veuillez entrer votre mot de passe';
               }
-              if (value.length < 6) {
-                return 'Le mot de passe doit contenir au moins 6 caractères';
-              }
+              // todo: Add more password validation
               return null;
             },
           ),
@@ -108,6 +106,8 @@ class _LoginFormState extends State<LoginForm> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Fonctionnalité à venir'),
+                    backgroundColor: AppTheme.secondaryColor,
+                    duration: Duration(milliseconds: 1600),
                   ),
                 );
               },
