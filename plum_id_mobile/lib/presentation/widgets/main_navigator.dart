@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plum_id_mobile/presentation/identification/screens/explorer_screen.dart';
 import 'package:plum_id_mobile/presentation/identification/screens/home_screen.dart';
 import 'package:plum_id_mobile/presentation/identification/screens/profile_screen.dart';
-import 'package:plum_id_mobile/presentation/identification/screens/scanner_screen.dart';
+import 'package:plum_id_mobile/presentation/identification/screens/import_screen.dart';
 import '../../../core/theme/app_theme.dart';
 
 class MainNavigator extends StatefulWidget {
@@ -17,7 +17,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   final List<Widget> _pages = const [
     HomeScreen(),
-    ScannerScreen(),
+    ImportScreen(),
     ExplorerScreen(),
     ProfileScreen(),
   ];
@@ -57,8 +57,8 @@ class _MainNavigatorState extends State<MainNavigator> {
                 index: 0,
               ),
               _buildNavItem(
-                icon: Icons.search,
-                label: "Scanner",
+                icon: Icons.image_search,
+                label: "Importer",
                 index: 1,
               ),
               _buildNavItem(

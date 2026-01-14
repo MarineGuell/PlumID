@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:plum_id_mobile/core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../history/screens/history_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,21 +17,21 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Header section
               _buildHeader(context),
-              
+
               // Subtitle card
               _buildSubtitleCard(),
-              
-              const SizedBox(height: 24),
-              
+
+              const SizedBox(height: AppConstants.largeSpacing),
+
               // Camera button
               _buildCameraButton(context),
-              
-              const SizedBox(height: 32),
-              
+
+              const SizedBox(height: AppConstants.largeSpacing),
+
               // Explorer section
-              _buildExplorerSection(),
-              
-              const SizedBox(height: 20),
+              _buildExplorerSection(context),
+
+              const SizedBox(height: AppConstants.mediumSpacing),
             ],
           ),
         ),
@@ -39,7 +41,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.largeSpacing),
       child: Column(
         children: [
           // Logo
@@ -50,13 +52,9 @@ class HomeScreen extends StatelessWidget {
               color: AppTheme.logoBackground,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(
-              Icons.eco,
-              size: 50,
-              color: AppTheme.logoIcon,
-            ),
+            child: const Icon(Icons.eco, size: 50, color: AppTheme.logoIcon),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppConstants.mediumSpacing),
           // App title
           Text(
             "Plum'ID",
@@ -66,12 +64,12 @@ class HomeScreen extends StatelessWidget {
               fontSize: 32,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppConstants.smallSpacing),
           // Subtitle
           Text(
             "Identifiez les oiseaux par leurs plumes",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.textOnPrimary.withOpacity(0.9),
+                color: AppTheme.textOnPrimary.withValues(alpha: 0.9),
               fontSize: 15,
             ),
           ),
@@ -116,9 +114,10 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         elevation: 4,
         child: InkWell(
-          onTap: () => {
-            // TODO: Implement camera functionality
-          },
+          onTap:
+              () => {
+                // TODO: Implement camera functionality
+              },
           borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
@@ -156,7 +155,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExplorerSection() {
+  Widget _buildExplorerSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -165,7 +164,7 @@ class HomeScreen extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 16),
             child: Text(
-              "Explorer",
+              "Naviguer",
               style: TextStyle(
                 color: AppTheme.textOnPrimary,
                 fontSize: 22,
@@ -192,7 +191,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppConstants.mediumSpacing),
           Row(
             children: [
               Expanded(
@@ -201,7 +200,12 @@ class HomeScreen extends StatelessWidget {
                   title: "Historique",
                   subtitle: "Mes plumes",
                   onTap: () {
-                    // TODO: Navigate to history
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HistoryScreen(),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -238,11 +242,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                size: 32,
-                color: AppTheme.textSecondary,
-              ),
+              Icon(icon, size: 32, color: AppTheme.textSecondary),
               const SizedBox(height: 12),
               Text(
                 title,
@@ -255,10 +255,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
               ),
             ],
           ),
@@ -268,16 +265,34 @@ class HomeScreen extends StatelessWidget {
   }
 
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: source);
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1920,
+      );
 
-    if (image != null) {
-      // TODO: Navigate to identification screen with image
+      if (image != null) {
+        // TODO: Navigate to identification screen with image
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Photo prise: ${image.name}'),
+              backgroundColor: AppTheme.secondaryColor,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Image sélectionnée: ${image.path}'),
-            backgroundColor: AppTheme.secondaryColor,
+            content: Text('Erreur lors de la prise de photo: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
       }

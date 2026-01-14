@@ -23,4 +23,16 @@ class AppConstants {
   // App Info
   static const String appName = "Plum'ID";
   static const String appVersion = '1.0.0';
+
+  // Spacing, Width, Height, ...
+  static const double defaultPadding = 24.0;
+  static const double defaultMargin = 16.0;
+  static const double borderRadius = 8.0;
+  static const double buttonHeight = 48.0;
+  static const double iconSize = 24.0;
+  static const double smallSpacing = 8.0;
+  static const double middleSpacing = 12.0;
+  static const double mediumSpacing = 16.0;
+  static const double largeSpacing = 30.0;
+
 }

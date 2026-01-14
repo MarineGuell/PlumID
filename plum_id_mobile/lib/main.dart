@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
+import 'presentation/auth/screens/auth_screen.dart';
 import 'presentation/widgets/main_navigator.dart';
 
 void main() {
@@ -21,7 +22,13 @@ class PlumIDApp extends StatelessWidget {
       title: "Plum'ID",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainNavigator(),
+      // TODO: Add authentication state management
+      // For now, show auth screen. Later, check if user is logged in
+      home: const AuthScreen(),
+      routes: {
+        '/home': (context) => const MainNavigator(),
+        '/auth': (context) => const AuthScreen(),
+      },
     );
   }
 }
