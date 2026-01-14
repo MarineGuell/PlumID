@@ -166,6 +166,7 @@ Le fichier `lib/presentation/providers/providers.dart` contient **uniquement** :
 ## 🧪 Tests
 
 Créez vos tests dans :
+
 ```
 test/presentation/ma_feature/notifiers/
 ```

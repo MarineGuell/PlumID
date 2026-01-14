@@ -35,8 +35,9 @@ class HistoryState {
 class HistoryNotifier extends _$HistoryNotifier {
   @override
   HistoryState build() {
-    loadHistory();
-    return const HistoryState();
+    // Load history after build
+    Future.microtask(() => loadHistory());
+    return const HistoryState(isLoading: true);
   }
 
   /// Loads the history from storage

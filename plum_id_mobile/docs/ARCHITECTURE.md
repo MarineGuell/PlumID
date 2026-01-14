@@ -271,7 +271,7 @@ lib/
     ├── providers/
     │   └── providers.dart      # Infrastructure uniquement
     ├── widgets/                # Widgets partagés
-    ├── identification/
+    ├── home/
     │   ├── notifiers/          # State management de la feature
     │   ├── screens/
     │   └── widgets/

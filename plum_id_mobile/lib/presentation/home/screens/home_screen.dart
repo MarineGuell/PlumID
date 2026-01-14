@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:plum_id_mobile/core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../history/screens/history_screen.dart';
+import '../widgets/home_header.dart';
+import '../widgets/home_subtitle_card.dart';
+import '../widgets/home_camera_button.dart';
+import '../widgets/home_explorer_section.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,20 +18,20 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               // Header section
-              _buildHeader(context),
+              const HomeHeader(),
 
               // Subtitle card
-              _buildSubtitleCard(),
+              const HomeSubtitleCard(),
 
               const SizedBox(height: AppConstants.largeSpacing),
 
               // Camera button
-              _buildCameraButton(context),
+              const HomeCameraButton(),
 
               const SizedBox(height: AppConstants.largeSpacing),
 
               // Explorer section
-              _buildExplorerSection(context),
+              const HomeExplorerSection(),
 
               const SizedBox(height: AppConstants.mediumSpacing),
             ],
@@ -37,265 +39,5 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppConstants.largeSpacing),
-      child: Column(
-        children: [
-          // Logo
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppTheme.logoBackground,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Icon(Icons.eco, size: 50, color: AppTheme.logoIcon),
-          ),
-          const SizedBox(height: AppConstants.mediumSpacing),
-          // App title
-          Text(
-            "Plum'ID",
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              color: AppTheme.textOnPrimary,
-              fontWeight: FontWeight.bold,
-              fontSize: 32,
-            ),
-          ),
-          const SizedBox(height: AppConstants.smallSpacing),
-          // Subtitle
-          Text(
-            "Identifiez les oiseaux par leurs plumes",
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textOnPrimary.withValues(alpha: 0.9),
-              fontSize: 15,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubtitleCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: const Text(
-        "Photographiez une plume pour identifier l'espèce d'oiseau",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: AppTheme.textSecondary,
-          fontSize: 16,
-          height: 1.4,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCameraButton(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      width: double.infinity,
-      child: Material(
-        color: AppTheme.secondaryColor,
-        borderRadius: BorderRadius.circular(20),
-        elevation: 4,
-        child: InkWell(
-          onTap:
-              () => {
-                // TODO: Implement camera functionality
-              },
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppTheme.textPrimary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    size: 40,
-                    color: AppTheme.textOnPrimary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  "Prendre une photo",
-                  style: TextStyle(
-                    color: AppTheme.textOnPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExplorerSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 16),
-            child: Text(
-              "Naviguer",
-              style: TextStyle(
-                color: AppTheme.textOnPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: _buildExplorerCard(
-                  icon: Icons.menu_book,
-                  title: "Guide",
-                  subtitle: "Espèces",
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildExplorerCard(
-                  icon: Icons.map,
-                  title: "Carte",
-                  subtitle: "Observations",
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppConstants.mediumSpacing),
-          Row(
-            children: [
-              Expanded(
-                child: _buildExplorerCard(
-                  icon: Icons.history,
-                  title: "Historique",
-                  subtitle: "Mes plumes",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HistoryScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildExplorerCard(
-                  icon: Icons.school,
-                  title: "Apprendre",
-                  subtitle: "Tutoriels",
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExplorerCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    VoidCallback? onTap,
-  }) {
-    return Material(
-      color: AppTheme.surfaceColor,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 2,
-      child: InkWell(
-        onTap: onTap ?? () {},
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 32, color: AppTheme.textSecondary),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _pickImage(BuildContext context, ImageSource source) async {
-    try {
-      final picker = ImagePicker();
-      final image = await picker.pickImage(
-        source: source,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 1920,
-      );
-
-      if (image != null) {
-        // TODO: Navigate to identification screen with image
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Photo prise: ${image.name}'),
-              backgroundColor: AppTheme.secondaryColor,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors de la prise de photo: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
   }
 }
