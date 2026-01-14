@@ -14,13 +14,23 @@ Application mobile Flutter pour l'identification d'oiseaux à partir de photos d
 
 ## 🏗️ Architecture
 
-Le projet utilise **Clean Architecture** avec **Riverpod** pour garantir :
+Le projet utilise une **approche hybride** optimale :
+- **Clean Architecture** pour les dépendances entre couches
+- **Feature-First** pour l'organisation de la Presentation layer
+
+Cette architecture garantit :
 - ✅ Code testable et maintenable
 - ✅ Séparation des responsabilités
 - ✅ Indépendance vis-à-vis des frameworks
-- ✅ Scalabilité
+- ✅ Scalabilité et organisation par feature
 
-Voir [ARCHITECTURE.md](./docs/ARCHITECTURE.md) pour plus de détails.
+📚 **[Documentation complète](./docs/INDEX.md)**
+
+### 🔗 Guides d'architecture
+
+- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Guide complet de l'architecture
+- **[ARCHITECTURE_VISUAL.md](./docs/ARCHITECTURE_VISUAL.md)** - Diagrammes et visualisations
+- **[FEATURE_FIRST_MIGRATION.md](./docs/FEATURE_FIRST_MIGRATION.md)** - Guide pour ajouter des features
 
 ## 📁 Structure du projet
 
@@ -32,22 +42,43 @@ lib/
 │   ├── utils/           # Helpers, extensions
 │   └── errors/          # Failures & Exceptions
 │
-├── data/                # Couche données
+├── data/                # Couche données (Layer-First)
 │   ├── models/          # Modèles Freezed + JSON
 │   ├── datasources/     # API, GPS, Cache local
 │   └── repositories/    # Implémentations
 │
-├── domain/              # Couche métier (PURE DART)
+├── domain/              # Couche métier (Layer-First, PURE DART)
 │   ├── entities/        # BirdSpecies, Prediction, etc.
 │   ├── repositories/    # Interfaces (contrats)
 │   └── usecases/        # IdentifyBird, GetHistory, etc.
 │
-└── presentation/        # Couche UI
-    ├── providers/       # Riverpod state management
+└── presentation/        # Couche UI (Feature-First)
+    ├── providers/       # Infrastructure (Dio, Repos, Use Cases)
     ├── widgets/         # Widgets communs
-    ├── identification/  # Feature: Identification
+    ├── home/            # Feature: Page d'accueil & Identification
+    │   ├── providers/   # State management de la feature
+    │   ├── screens/
+    │   └── widgets/
+    ├── import/          # Feature: Import d'images
+    │   ├── providers/
+    │   ├── screens/
+    │   └── widgets/
+    ├── explorer/        # Feature: Explorer les espèces
+    │   ├── providers/
+    │   ├── screens/
+    │   └── widgets/
+    ├── profile/         # Feature: Profil utilisateur
+    │   ├── providers/
+    │   ├── screens/
+    │   └── widgets/
     ├── history/         # Feature: Historique
+    │   ├── providers/   # State management de la feature
+    │   ├── screens/
+    │   └── widgets/
     └── species_detail/  # Feature: Détails espèce
+        ├── providers/   # State management de la feature
+        ├── screens/
+        └── widgets/
 ```
 
 ## 🚀 Installation

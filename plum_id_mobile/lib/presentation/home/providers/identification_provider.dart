@@ -1,9 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../domain/entities/prediction.dart';
-import '../../domain/entities/location.dart';
-import '../../domain/usecases/identify_bird.dart';
-import '../../domain/usecases/usecase.dart';
-import 'providers.dart';
+import '../../../domain/entities/prediction.dart';
+import '../../../domain/entities/location.dart';
+import '../../../domain/usecases/identify_bird.dart';
+import '../../../domain/usecases/usecase.dart';
+import '../../providers/providers.dart';
 
 part 'identification_provider.g.dart';
 

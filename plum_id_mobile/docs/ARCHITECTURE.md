@@ -10,26 +10,44 @@ PlumID utilise une **Clean Architecture** combinée avec **Riverpod** pour la ge
 
 ```
 presentation/
-├── providers/              # State management (Riverpod)
-│   ├── providers.dart      # Infrastructure & dependency injection
-│   ├── identification_provider.dart
-│   └── history_provider.dart
+├── providers/              # Infrastructure & dependency injection ONLY
+│   └── providers.dart      # Dio, SharedPrefs, Repositories, Use Cases
 ├── widgets/               # Widgets réutilisables communs
-├── identification/        # Feature: Identification d'oiseaux
+├── home/                  # Feature: Page d'accueil & Identification
+│   ├── providers/         # State management pour cette feature
+│   │   └── identification_provider.dart
 │   ├── screens/
 │   │   └── home_screen.dart
 │   └── widgets/
+├── import/               # Feature: Import d'images
+│   ├── providers/
+│   ├── screens/
+│   │   └── import_screen.dart
+│   └── widgets/
+├── explorer/             # Feature: Explorer les espèces
+│   ├── providers/
+│   ├── screens/
+│   │   └── explorer_screen.dart
+│   └── widgets/
+├── profile/              # Feature: Profil utilisateur
+│   ├── providers/
+│   ├── screens/
+│   │   └── profile_screen.dart
+│   └── widgets/
 ├── history/              # Feature: Historique
+│   ├── providers/        # State management pour cette feature
+│   │   └── history_provider.dart
 │   ├── screens/
 │   └── widgets/
 └── species_detail/       # Feature: Détails d'une espèce
+    ├── providers/        # State management pour cette feature
     ├── screens/
     └── widgets/
 ```
 
 **Responsabilités** :
 - Afficher l'UI
-- Gérer l'état via Riverpod
+- Gérer l'état via Riverpod (providers par feature)
 - Réagir aux interactions utilisateur
 - Appeler les use cases via les providers
 
@@ -37,6 +55,8 @@ presentation/
 - ❌ Pas de logique métier
 - ❌ Pas d'appels directs aux repositories
 - ✅ Widgets purs et réactifs
+- ✅ Providers de state management dans chaque feature
+- ✅ `providers.dart` central contient uniquement l'infrastructure
 
 ---
 
@@ -219,6 +239,62 @@ Historique d'une identification.
 
 ---
 
+## 🏗️ Organisation : Clean Architecture + Feature-First
+
+### Approche Hybride
+
+Ce projet utilise une **approche hybride** optimale :
+
+- **Domain & Data** : Organisés par **couche** (layer-first) ✅
+  - Permet de voir rapidement toutes les entités, tous les use cases
+  - Facilite la réutilisation entre features
+
+- **Presentation** : Organisé par **feature** (feature-first) ✅
+  - Chaque feature contient ses propres providers de state management
+  - Tout le code d'une feature est regroupé au même endroit
+  - Facilite la scalabilité et le travail d'équipe
+
+### Structure complète
+
+```
+lib/
+├── core/                       # Partagé (errors, theme, constants, utils)
+├── domain/                     # Logique métier (centralisé)
+│   ├── entities/
+│   ├── repositories/
+│   └── usecases/
+├── data/                       # Sources de données (centralisé)
+│   ├── models/
+│   ├── datasources/
+│   └── repositories/
+└── presentation/               # UI (par feature)
+    ├── providers/
+    │   └── providers.dart      # Infrastructure uniquement
+    ├── widgets/                # Widgets partagés
+    ├── identification/
+    │   ├── providers/          # State management de la feature
+    │   ├── screens/
+    │   └── widgets/
+    ├── history/
+    │   ├── providers/          # State management de la feature
+    │   ├── screens/
+    │   └── widgets/
+    └── [future_feature]/       # Prêt pour de nouvelles features
+        ├── providers/
+        ├── screens/
+        └── widgets/
+```
+
+### Avantages de cette approche
+
+✅ **Scalabilité** : Facile d'ajouter de nouvelles features sans conflits  
+✅ **Cohésion** : Tout le code d'une feature au même endroit  
+✅ **Maintenabilité** : Navigation intuitive dans le code  
+✅ **Travail d'équipe** : Chaque feature peut être développée indépendamment  
+✅ **Clean Architecture** : Respect strict des principes (dépendances vers le centre)
+
+---
+
 ## 🔑 Règles d'or
 
 1. **Les dépendances pointent vers le centre**
@@ -237,9 +313,15 @@ Historique d'une identification.
    - `IdentifyBird`, `GetHistory`, `SaveIdentification`...
    - Chacun fait une seule chose bien
 
-5. **Providers = pont UI ↔ Domain**
-   - Pas de logique métier dans les providers
-   - Juste orchestration et gestion d'état
+5. **Providers organisés par contexte**
+   - `providers.dart` central = Infrastructure (Dio, repos, use cases)
+   - Providers de state management = Dans chaque feature
+   - Facilite l'ajout de nouvelles fonctionnalités
+
+6. **Feature-First dans Presentation**
+   - Chaque feature regroupe tout son code UI
+   - Améliore la navigation et la maintenabilité
+   - Prépare le projet pour la croissance
 
 ---
 

@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../domain/entities/identification.dart';
-import '../../domain/usecases/save_identification.dart';
-import '../../domain/usecases/usecase.dart';
-import 'providers.dart';
+import '../../../domain/entities/identification.dart';
+import '../../../domain/usecases/save_identification.dart';
+import '../../../domain/usecases/usecase.dart';
+import '../../providers/providers.dart';
 
 part 'history_provider.g.dart';
 

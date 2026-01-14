@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:plum_id_mobile/presentation/identification/screens/explorer_screen.dart';
-import 'package:plum_id_mobile/presentation/identification/screens/home_screen.dart';
-import 'package:plum_id_mobile/presentation/identification/screens/profile_screen.dart';
-import 'package:plum_id_mobile/presentation/identification/screens/import_screen.dart';
+import 'package:plum_id_mobile/presentation/explorer/screens/explorer_screen.dart';
+import 'package:plum_id_mobile/presentation/home/screens/home_screen.dart';
+import 'package:plum_id_mobile/presentation/profile/screens/profile_screen.dart';
+import 'package:plum_id_mobile/presentation/import/screens/import_screen.dart';
 import '../../../core/theme/app_theme.dart';
 
 class MainNavigator extends StatefulWidget {

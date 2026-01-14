@@ -21,7 +21,19 @@ import '../../domain/usecases/get_current_location.dart';
 part 'providers.g.dart';
 
 // ============================================================================
-// Infrastructure Providers
+// INFRASTRUCTURE PROVIDERS
+// This file contains only infrastructure-level providers:
+// - External dependencies (Dio, SharedPreferences)
+// - DataSources
+// - Repository implementations
+// - Use Cases
+//
+// Feature-specific state management providers are located in their respective
+// feature folders: presentation/{feature}/providers/
+// ============================================================================
+
+// ============================================================================
+// External Dependencies
 // ============================================================================
 
 @riverpod
