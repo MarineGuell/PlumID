@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
@@ -17,9 +16,6 @@ class PlumIDApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Camera App',
-      debugShowCheckedModeBanner: false,
-      home: CameraScreen(camera: _cameras[0]),
       title: "Plum'ID",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

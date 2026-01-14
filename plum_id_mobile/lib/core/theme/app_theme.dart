@@ -9,16 +9,16 @@ class AppTheme {
   static const Color backgroundColor = Color(0xFF2C5252);
   static const Color surfaceColor = Colors.white;
   static const Color errorColor = Color(0xFFD32F2F);
-  
+
   // Logo colors
   static const Color logoBackground = Color(0xFF8FBAAA); // Logo background
   static const Color logoIcon = Colors.white; // Logo icon color
-  
+
   // Text colors
   static const Color textPrimary = Color(0xFF2C3E3E);
   static const Color textSecondary = Color(0xFF5A6F6F);
   static const Color textOnPrimary = Colors.white;
-  
+
   // Navigation colors
   static const Color navActive = Color(0xFF7CADA0);
   static const Color navInactive = Color(0xFF9CA3AF);
@@ -34,7 +34,7 @@ class AppTheme {
         error: errorColor,
       ),
       scaffoldBackgroundColor: backgroundColor,
-      
+
       // Text Theme
       textTheme: GoogleFonts.poppinsTextTheme().copyWith(
         displayLarge: GoogleFonts.poppins(
@@ -57,16 +57,10 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodyLarge: GoogleFonts.poppins(
-          fontSize: 16,
-          color: textPrimary,
-        ),
-        bodyMedium: GoogleFonts.poppins(
-          fontSize: 14,
-          color: textSecondary,
-        ),
+        bodyLarge: GoogleFonts.poppins(fontSize: 16, color: textPrimary),
+        bodyMedium: GoogleFonts.poppins(fontSize: 14, color: textSecondary),
       ),
-      
+
       // AppBar Theme
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor,
@@ -79,16 +73,14 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-      
+
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         color: surfaceColor,
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -96,16 +88,14 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
-      
+
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -126,7 +116,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: errorColor),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
     );
   }

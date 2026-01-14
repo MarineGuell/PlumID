@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:plum_id_mobile/presentation/identification/widgets/camera_widgets.dart';
+import 'package:plum_id_mobile/presentation/providers/camera_provider.dart';
 import '../../../core/theme/app_theme.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -15,20 +18,20 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Header section
               _buildHeader(context),
-              
+
               // Subtitle card
               _buildSubtitleCard(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Camera button
-              _buildCameraButton(context),
-              
+              _buildCameraButton(context, ref),
+
               const SizedBox(height: 32),
-              
+
               // Explorer section
               _buildExplorerSection(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -50,11 +53,7 @@ class HomeScreen extends StatelessWidget {
               color: AppTheme.logoBackground,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(
-              Icons.eco,
-              size: 50,
-              color: AppTheme.logoIcon,
-            ),
+            child: const Icon(Icons.eco, size: 50, color: AppTheme.logoIcon),
           ),
           const SizedBox(height: 16),
           // App title
@@ -107,7 +106,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCameraButton(BuildContext context) {
+  Widget _buildCameraButton(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       width: double.infinity,
@@ -116,8 +115,12 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         elevation: 4,
         child: InkWell(
-          onTap: () => {
-            // TODO: Implement camera functionality
+          onTap: () async {
+            final camera = await ref.read(backCameraProvider.future);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => CameraScreen(camera: camera)),
+            );
           },
           borderRadius: BorderRadius.circular(20),
           child: Container(
@@ -238,11 +241,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                size: 32,
-                color: AppTheme.textSecondary,
-              ),
+              Icon(icon, size: 32, color: AppTheme.textSecondary),
               const SizedBox(height: 12),
               Text(
                 title,
@@ -255,10 +254,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
               ),
             ],
           ),

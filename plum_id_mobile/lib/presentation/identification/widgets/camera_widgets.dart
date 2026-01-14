@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:plum_id_mobile/core/theme/app_theme.dart';
 
 class CameraScreen extends StatefulWidget {
   final CameraDescription camera;
@@ -56,7 +57,7 @@ class _CameraScreenState extends State<CameraScreen> {
       // Dialog de confirmation de la photo
       final shouldSent = await showDialog<bool>(
         context: context,
-        barrierDismissible: false,
+        barrierDismissible: true,
         builder: (BuildContext dialogContext) {
           return Dialog(
             shape: RoundedRectangleBorder(
@@ -69,7 +70,11 @@ class _CameraScreenState extends State<CameraScreen> {
                 children: [
                   const Text(
                     'Aperçu de la photo',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.secondaryColor,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   ClipRRect(
@@ -83,31 +88,38 @@ class _CameraScreenState extends State<CameraScreen> {
                   ),
                   const SizedBox(height: 20),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // Reprendre la photo
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).pop(false); // Ferme le dialog
-                        },
-                        icon: const Icon(Icons.camera_alt),
-                        label: const Text("Reprendre"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
-                          foregroundColor: Colors.white,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).pop(false); // Ferme le dialog
+                          },
+                          icon: const Icon(Icons.camera_alt, size: 20),
+                          label: const Text("Reprendre"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 10),
+
                       // Button Envoyer
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).pop(true);
-                        },
-                        icon: const Icon(Icons.send),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).pop(true);
+                          },
+                          icon: const Icon(Icons.send, size: 20),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.secondaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          label: const Text("Envoyer"),
                         ),
-                        label: const Text("Envoyer"),
                       ),
                     ],
                   ),
@@ -161,14 +173,21 @@ class _CameraScreenState extends State<CameraScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 550, width: 500, child: CameraPreview(controller)),
-            const SizedBox(height: 10),
-            IconButton(
-              constraints: const BoxConstraints(minWidth: 80, minHeight: 80),
-              onPressed: _takePicture,
-              icon: Image.asset(
-                'assets/icons/plum_camera.png',
-                width: 150,
-                height: 150,
+            const SizedBox(height: 25),
+            InkWell(
+              onTap: _takePicture,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppTheme.secondaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.camera_alt,
+                  size: 60,
+                  color: AppTheme.textOnPrimary,
+                ),
               ),
             ),
           ],
