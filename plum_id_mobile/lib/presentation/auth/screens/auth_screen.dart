@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:plum_id_mobile/core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../widgets/login_form.dart';
 import '../widgets/register_form.dart';
@@ -27,7 +28,9 @@ class _AuthScreenState extends State<AuthScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppConstants.defaultPadding,
+            ),
             child: Column(
               children: [
                 const SizedBox(height: 5),
@@ -35,11 +38,11 @@ class _AuthScreenState extends State<AuthScreen> {
                 // Logo
                 _buildLogo(),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: AppConstants.largeSpacing),
 
                 // Auth Form Card
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
                   decoration: BoxDecoration(
                     color: AppTheme.surfaceColor,
                     borderRadius: BorderRadius.circular(20),
@@ -66,7 +69,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppConstants.smallSpacing),
 
                       Text(
                         _isLogin
@@ -78,12 +81,12 @@ class _AuthScreenState extends State<AuthScreen> {
                         textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppConstants.mediumSpacing),
 
                       // Form
                       _isLogin ? const LoginForm() : const RegisterForm(),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppConstants.mediumSpacing),
 
                       // Toggle button
                       Row(
@@ -111,8 +114,6 @@ class _AuthScreenState extends State<AuthScreen> {
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -129,9 +130,9 @@ class _AuthScreenState extends State<AuthScreen> {
           fit: BoxFit.contain,
           width: 150,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppConstants.mediumSpacing),
         Text(
-          "Plum'ID",
+          AppConstants.appName,
           style: Theme.of(context).textTheme.displayMedium?.copyWith(
             color: AppTheme.textOnPrimary,
             fontWeight: FontWeight.bold,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plum_id_mobile/core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 
 class LoginForm extends StatefulWidget {
@@ -21,17 +22,27 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
       // TODO: Implement login logic
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!mounted) return;
+      
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('Connexion en cours...'),
           backgroundColor: AppTheme.secondaryColor,
+          duration: Duration(seconds: 2),
         ),
       );
 
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Clear the snackbar before navigation
+      messenger.clearSnackBars();
+
       // todo: On successful login, navigate to home
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
     }
   }
@@ -63,7 +74,7 @@ class _LoginFormState extends State<LoginForm> {
             },
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: AppConstants.mediumSpacing),
           
           // Password field
           TextFormField(
@@ -95,7 +106,7 @@ class _LoginFormState extends State<LoginForm> {
             },
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: AppConstants.smallSpacing),
           
           // Forgot password
           Align(
@@ -121,7 +132,7 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
           
-          const SizedBox(height: 10),
+          const SizedBox(height: AppConstants.smallSpacing),
           
           // Login button
           ElevatedButton(

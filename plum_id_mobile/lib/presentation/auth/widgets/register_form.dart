@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plum_id_mobile/core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 
 class RegisterForm extends StatefulWidget {
@@ -67,7 +68,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: AppConstants.mediumSpacing),
           
           // Email field
           TextFormField(
@@ -89,7 +90,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: AppConstants.mediumSpacing),
           
           // Password field
           TextFormField(
@@ -123,7 +124,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: AppConstants.mediumSpacing),
           
           // Confirm password field
           TextFormField(
@@ -157,7 +158,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: AppConstants.largeSpacing),
           
           // Register button
           ElevatedButton(
@@ -179,14 +180,14 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           
-          const SizedBox(height: 16),
-          
+          const SizedBox(height: AppConstants.middleSpacing),
           // Terms and conditions
           Text(
-            "En vous inscrivant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité",
+            "Politique de confidentialité",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppTheme.textSecondary,
               fontSize: 12,
+              decoration: TextDecoration.underline
             ),
             textAlign: TextAlign.center,
           ),
