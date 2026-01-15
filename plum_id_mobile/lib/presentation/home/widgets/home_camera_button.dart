@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../providers/camera_provider.dart';
+import '../../identification/widgets/camera_widgets.dart';
 
-class HomeCameraButton extends StatelessWidget {
+class HomeCameraButton extends ConsumerWidget {
   const HomeCameraButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       width: double.infinity,
@@ -15,7 +17,7 @@ class HomeCameraButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         elevation: 4,
         child: InkWell(
-          onTap: () => _pickImage(context, ImageSource.camera),
+          onTap: () => _openCamera(context, ref),
           borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
@@ -53,33 +55,23 @@ class HomeCameraButton extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(BuildContext context, ImageSource source) async {
+  Future<void> _openCamera(BuildContext context, WidgetRef ref) async {
     try {
-      final picker = ImagePicker();
-      final image = await picker.pickImage(
-        source: source,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 1920,
-      );
+      // Récupérer la caméra arrière via le provider
+      final camera = await ref.read(backCameraProvider.future);
 
-      if (image != null) {
-        // TODO: Navigate to identification screen with image
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Photo prise: ${image.name}'),
-              backgroundColor: AppTheme.secondaryColor,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
+      if (!context.mounted) return;
+
+      // Naviguer vers l'écran de caméra avec la caméra récupérée
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CameraScreen(camera: camera)),
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de la prise de photo: $e'),
+            content: Text('Erreur lors de l\'ouverture de la caméra: $e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
