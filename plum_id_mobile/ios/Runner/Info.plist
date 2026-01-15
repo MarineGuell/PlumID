@@ -49,5 +49,17 @@
 	<string>Nous avons besoin d'accéder à votre caméra pour prendre des photos de plumes et identifier les espèces d'oiseaux.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Nous avons besoin d'accéder à votre galerie pour sélectionner des photos de plumes.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Cette permission est nécessaire pour connecter l'application au débogueur Flutter.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Nous avons besoin d'accéder à votre microphone pour les vidéos.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nous avons besoin de votre localisation pour géolocaliser les observations.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Nous avons besoin de votre localisation pour géolocaliser les observations.</string>
 </dict>
 </plist>
