@@ -11,7 +11,6 @@ import '../notifiers/profile_notifier.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/language_selector_bottom_sheet.dart';
 import 'personal_info_screen.dart';
-import 'placeholder_screen.dart';
 
 // Provider pour récupérer la version de l'application
 final appVersionProvider = FutureProvider<String>((ref) async {
@@ -230,11 +229,33 @@ class ProfileScreen extends ConsumerWidget {
                         ProfileMenuItem(
                           icon: Icons.feedback_outlined,
                           title: l10n.feedback,
-                          onTap:
-                              () => _navigateToPlaceholder(
-                                context,
-                                l10n.feedback,
-                              ),
+                          onTap: () async {
+                            final Uri emailLaunchUri = Uri(
+                              scheme: 'mailto',
+                              path: AppConstants.contactEmail,
+                              queryParameters: {
+                                'subject': 'Feedback - ${AppConstants.appName}',
+                                // 'body': 'Bonjour l\'équipe PlumID,\n\n', // Optionnel
+                              },
+                            );
+                            if (await canLaunchUrl(emailLaunchUri)) {
+                              try {
+                                await launchUrl(emailLaunchUri);
+                              } catch (e) {
+                                debugPrint('Could not launch email: $e');
+                              }
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Impossible d\'ouvrir l\'application Mail.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -396,12 +417,6 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  void _navigateToPlaceholder(BuildContext context, String title) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => PlaceholderScreen(title: title)),
     );
   }
 }

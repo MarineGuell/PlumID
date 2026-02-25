@@ -28,6 +28,9 @@ class AppConstants {
   static const String privacyPolicyUrl = 'https://plum-id.com/privacy';
   static const String termsOfUseUrl = 'https://plum-id.com/terms';
 
+  // Contact
+  static const String contactEmail = 'contact@plum-id.com';
+
   // Spacing, Width, Height, ...
   static const double defaultPadding = 24.0;
   static const double defaultMargin = 16.0;
