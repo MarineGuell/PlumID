@@ -5,24 +5,28 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
-
+import bcrypt
 from api.settings import settings
 
 ALGORITHM = "HS256"
 
-# Contexte Passlib pour le hash des mots de passe
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def hash_password(password: str) -> str:
-    """Hash un mot de passe avec bcrypt."""
-    return pwd_context.hash(password)
+    """Hash un mot de passe avec bcrypt directement."""
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
+    return hashed.decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Vérifie la correspondance mot de passe / hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Vérifie la correspondance mot de passe / hash avec bcrypt directement."""
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8")
+        )
+    except ValueError:
+        return False
 
 
 def create_access_token(
@@ -42,7 +46,8 @@ def create_access_token(
     expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
 
-    encoded_jwt = jwt.encode(to_encode, settings.auth_secret, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.auth_secret, algorithm=ALGORITHM)
     return encoded_jwt
 
 

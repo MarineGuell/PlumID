@@ -14,8 +14,7 @@ PyMySQL
 
 # --- Encrypters
 python-jose[cryptography]
-passlib[bcrypt]
-bcrypt==3.2.0
+bcrypt>=4.0.1
 PyJWT
 
 # --- Tests
