@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 import 'package:plum_id_mobile/core/constants/app_constants.dart';
+import 'package:plum_id_mobile/presentation/auth/notifiers/auth_notifier.dart';
 import '../../../core/theme/app_theme.dart';
 
-class RegisterForm extends StatefulWidget {
+class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
 
   @override
-  State<RegisterForm> createState() => _RegisterFormState();
+  ConsumerState<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -17,6 +20,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  Map<String, String> _fieldErrors = {};
 
   @override
   void dispose() {
@@ -28,22 +32,99 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   void _handleRegister() {
+    setState(() {
+      _fieldErrors.clear();
+    });
     if (_formKey.currentState?.validate() ?? false) {
-      // TODO: Implement registration logic
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Inscription en cours...'),
           backgroundColor: AppTheme.secondaryColor,
         ),
       );
-
-      // todo: On successful registration, navigate to home
-      Navigator.pushReplacementNamed(context, '/home');
+      ref
+          .read(authNotifierProvider.notifier)
+          .register(
+            _emailController.text,
+            _nameController.text, // Assuming username maps to name
+            _passwordController.text,
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authNotifierProvider, (previous, next) {
+      if (next.isLoading) return;
+
+      if (next.hasError) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        String errorMessage = "Erreur d'inscription";
+        Map<String, String> newFieldErrors = {};
+        final error = next.error;
+
+        if (error is DioException) {
+          final data = error.response?.data;
+          if (data is Map<String, dynamic> && data['error'] != null) {
+            final apiError = data['error'];
+            final errorCode = apiError['code']?.toString() ?? '';
+            errorMessage = apiError['message'] ?? errorMessage;
+
+            if (apiError['details'] != null &&
+                apiError['details']['errors'] != null) {
+              final errors = apiError['details']['errors'] as List;
+              if (errors.isNotEmpty) {
+                for (var err in errors) {
+                  if (err['loc'] != null && err['loc'].length > 1) {
+                    final String field = err['loc'][1].toString();
+                    newFieldErrors[field] =
+                        err['msg']?.toString() ?? 'Erreur invalide';
+                  }
+                }
+              }
+            }
+
+            if (errorCode == 'HTTP_409' || error.response?.statusCode == 409) {
+              errorMessage = 'Email ou nom d\'utilisateur déjà utilisé';
+            }
+          } else if (error.response?.statusCode == 409) {
+            errorMessage = 'Email ou nom d\'utilisateur déjà utilisé';
+          }
+        }
+
+        if (mounted) {
+          setState(() {
+            _fieldErrors = newFieldErrors;
+          });
+
+          if (newFieldErrors.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } else if (next.hasValue && next.value == null) {
+        // null user means we just registered but not logged in, or logout.
+        // Assuming this trigger is from register succeeding if previous was loading
+        if (previous?.isLoading == true) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Inscription réussie, veuillez vous connecter'),
+            ),
+          );
+        }
+      }
+    });
+
+    final authState = ref.watch(authNotifierProvider);
+    final isLoading = authState.isLoading;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -52,10 +133,11 @@ class _RegisterFormState extends State<RegisterForm> {
           // Name field
           TextFormField(
             controller: _nameController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Nom complet',
               hintText: 'Jean Dupont',
-              prefixIcon: Icon(Icons.person_outline),
+              prefixIcon: const Icon(Icons.person_outline),
+              errorText: _fieldErrors['username'] ?? _fieldErrors['name'],
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -74,10 +156,11 @@ class _RegisterFormState extends State<RegisterForm> {
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Email',
               hintText: 'votre.email@exemple.com',
-              prefixIcon: Icon(Icons.email_outlined),
+              prefixIcon: const Icon(Icons.email_outlined),
+              errorText: _fieldErrors['mail'] ?? _fieldErrors['email'],
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -100,6 +183,7 @@ class _RegisterFormState extends State<RegisterForm> {
               labelText: 'Mot de passe',
               hintText: '••••••••',
               prefixIcon: const Icon(Icons.lock_outline),
+              errorText: _fieldErrors['password'],
               suffixIcon: IconButton(
                 icon: Icon(
                   _isPasswordVisible
@@ -162,7 +246,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
           // Register button
           ElevatedButton(
-            onPressed: _handleRegister,
+            onPressed: isLoading ? null : _handleRegister,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.secondaryColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -170,14 +254,24 @@ class _RegisterFormState extends State<RegisterForm> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              "S'inscrire",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+            child:
+                isLoading
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : const Text(
+                      "S'inscrire",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
           ),
 
           const SizedBox(height: AppConstants.middleSpacing),

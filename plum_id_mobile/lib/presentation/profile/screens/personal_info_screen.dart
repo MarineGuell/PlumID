@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plum_id_mobile/core/theme/app_theme.dart';
 
 import '../../../domain/entities/user_profile.dart';
-import '../notifiers/profile_notifier.dart';
+import '../../auth/notifiers/auth_notifier.dart';
 
 class PersonalInfoScreen extends ConsumerStatefulWidget {
   const PersonalInfoScreen({super.key});
@@ -29,9 +29,9 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
     // Initialiser les champs avec les données actuelles
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final profileState = ref.read(profileNotifierProvider);
-      if (profileState is AsyncData<UserProfile>) {
-        final profile = profileState.value;
+      final authState = ref.read(authNotifierProvider);
+      if (authState is AsyncData<UserProfile?> && authState.value != null) {
+        final profile = authState.value!;
         _usernameController.text = profile.username;
         _emailController.text = profile.email;
       }
@@ -46,51 +46,11 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     super.dispose();
   }
 
-  void _toggleEdit() {
-    setState(() {
-      _isEditing = !_isEditing;
-      if (!_isEditing) {
-        // Annuler l'édition : remettre les anciennes valeurs
-        final profileState = ref.read(profileNotifierProvider);
-        if (profileState is AsyncData<UserProfile>) {
-          final profile = profileState.value;
-          _usernameController.text = profile.username;
-          _emailController.text = profile.email;
-        }
-      }
-    });
-  }
-
-  Future<void> _saveChanges(UserProfile currentProfile) async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final updatedProfile = UserProfile(
-      id: currentProfile.id,
-      username: _usernameController.text.trim(),
-      email: _emailController.text.trim(),
-    );
-
-    await ref
-        .read(profileNotifierProvider.notifier)
-        .updateProfile(updatedProfile);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Informations mises à jour avec succès'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      setState(() {
-        _isEditing = false;
-      });
-    }
-  }
+  // _toggleEdit and _saveChanges methods removed temporarily as editing is disabled
 
   @override
   Widget build(BuildContext context) {
-    final profileState = ref.watch(profileNotifierProvider);
+    final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -99,7 +59,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         elevation: 0,
         title: const Text('Informations personnelles'),
       ),
-      body: profileState.when(
+      body: authState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error:
             (err, stack) => Center(
@@ -108,21 +68,29 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 style: const TextStyle(color: Colors.red),
               ),
             ),
-        data: (profile) => _buildContent(context, profile),
+        data:
+            (profile) =>
+                profile != null
+                    ? _buildContent(context, profile)
+                    : const Center(child: Text("Non connecté")),
       ),
       floatingActionButton:
-          profileState is AsyncData
+          authState is AsyncData
               ? FloatingActionButton.extended(
-                onPressed: _toggleEdit,
-                backgroundColor:
-                    _isEditing ? Colors.red : Theme.of(context).primaryColor,
-                icon: Icon(
-                  _isEditing ? Icons.close : Icons.edit,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  _isEditing ? 'Annuler' : 'Modifier',
-                  style: const TextStyle(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Cette fonctionnalité sera bientôt disponible',
+                      ),
+                    ),
+                  );
+                },
+                backgroundColor: Colors.grey,
+                icon: const Icon(Icons.edit_off, color: Colors.white),
+                label: const Text(
+                  'Modifier (Bientôt)',
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -240,30 +208,6 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                   ),
               ],
             ),
-
-            const SizedBox(height: 48),
-
-            // Save button
-            if (_isEditing)
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () => _saveChanges(profile),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Enregistrer',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

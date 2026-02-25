@@ -11,7 +11,6 @@ import '../notifiers/profile_notifier.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/language_selector_bottom_sheet.dart';
 import '../../auth/notifiers/auth_notifier.dart';
-import '../../auth/screens/auth_screen.dart';
 import 'personal_info_screen.dart';
 
 // Provider pour récupérer la version de l'application
@@ -25,7 +24,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileState = ref.watch(profileNotifierProvider);
+    final authState = ref.watch(authNotifierProvider);
     final versionState = ref.watch(appVersionProvider);
     final l10n = AppLocalizations.of(context)!;
 
@@ -51,13 +50,18 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // Section Informations Utilisateur
-                  profileState.when(
+                  authState.when(
                     data:
-                        (profile) => _buildUserInfoSection(
-                          context,
-                          username: profile.username,
-                          email: profile.email,
-                        ),
+                        (profile) =>
+                            profile != null
+                                ? _buildUserInfoSection(
+                                  context,
+                                  username: profile.username,
+                                  email: profile.email,
+                                )
+                                : const Center(
+                                  child: Text('Utilisateur non connecté'),
+                                ),
                     loading:
                         () => const Center(
                           child: Padding(
@@ -295,7 +299,15 @@ class ProfileScreen extends ConsumerWidget {
                           icon: Icons.delete_outline,
                           title: l10n.deleteAccount,
                           isDestructive: true,
-                          onTap: () => _showDeleteAccountDialog(context, ref),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Cette fonctionnalité sera bientôt disponible',
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -408,9 +420,9 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+  Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
-    showModalBottomSheet(
+    final shouldLogout = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -431,36 +443,20 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   Text(
                     l10n.logoutConfirmationTitle,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(bottomSheetContext).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppConstants.mediumSpacing),
                   Text(
                     l10n.logoutConfirmationMessage,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(bottomSheetContext).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppConstants.largeSpacing),
                   ElevatedButton(
-                    onPressed: () async {
-                      // Récupérer le navigator avant la fermeture du bottom sheet
-                      final navigator = Navigator.of(context);
-
-                      // Fermer le bottom sheet
-                      Navigator.of(bottomSheetContext).pop();
-
-                      // Déconnecter
-                      await ref.read(authNotifierProvider.notifier).logout();
-
-                      // Rediriger
-                      navigator.pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => const AuthScreen(),
-                        ),
-                        (route) => false,
-                      );
+                    onPressed: () {
+                      Navigator.of(bottomSheetContext).pop(true);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.errorColor,
@@ -480,7 +476,8 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppConstants.smallSpacing),
                   TextButton(
-                    onPressed: () => Navigator.of(bottomSheetContext).pop(),
+                    onPressed:
+                        () => Navigator.of(bottomSheetContext).pop(false),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -494,96 +491,11 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
     );
+
+    if (shouldLogout == true) {
+      await ref.read(authNotifierProvider.notifier).logout();
+    }
   }
 
-  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (bottomSheetContext) => Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    l10n.deleteAccountConfirmationTitle,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppConstants.mediumSpacing),
-                  Text(
-                    l10n.deleteAccountConfirmationMessage,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppConstants.largeSpacing),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Récupérer le navigator avant la fermeture du bottom sheet
-                      final navigator = Navigator.of(context);
-
-                      // Fermer le bottom sheet
-                      Navigator.of(bottomSheetContext).pop();
-
-                      // Appeler la suppression mockée
-                      await ref
-                          .read(profileNotifierProvider.notifier)
-                          .deleteAccount();
-                      await ref.read(authNotifierProvider.notifier).logout();
-
-                      // Rediriger vers AuthScreen
-                      navigator.pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => const AuthScreen(),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.errorColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.confirm,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.smallSpacing),
-                  TextButton(
-                    onPressed: () => Navigator.of(bottomSheetContext).pop(),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      l10n.cancel,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-    );
-  }
+  // _showDeleteAccountDialog method removed because it's disabled for now
 }
