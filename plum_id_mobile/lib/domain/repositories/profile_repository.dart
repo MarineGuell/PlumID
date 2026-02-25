@@ -4,4 +4,5 @@ import '../entities/user_profile.dart';
 
 abstract class ProfileRepository {
   Future<Either<Failure, UserProfile>> getProfile();
+  Future<Either<Failure, UserProfile>> updateProfile(UserProfile profile);
 }

@@ -2,6 +2,7 @@ import '../models/user_profile_model.dart';
 
 abstract class ProfileRemoteDataSource {
   Future<UserProfileModel> getProfile();
+  Future<UserProfileModel> updateProfile(UserProfileModel profile);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -12,10 +13,18 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
     // Simuler des données retournées
     return const UserProfileModel(
-      id: 'usr_123456789',
-      firstName: 'Marine',
-      lastName: 'Guell',
+      id: 1,
+      username: 'marineguell',
       email: 'marine.guell@example.com',
     );
+  }
+
+  @override
+  Future<UserProfileModel> updateProfile(UserProfileModel profile) async {
+    // Simuler une mise à jour réseau (mock)
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Retourner le profil mis à jour
+    return profile;
   }
 }

@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "profileTitle": "Profile",
+  "@profileTitle": {
+    "description": "Main title of the profile page"
+  },
+  "personalInformation": "Personal Information",
+  "language": "Language",
+  "rateUs": "Rate Us",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfUse": "Terms of Use",
+  "feedback": "Feedback",
+  "deleteAccount": "Delete Account",
+  "logout": "Logout",
+  "version": "Version",
+  "about": "About",
+  "logoutNotImplemented": "Logout not yet implemented",
+  "deleteAccountNotImplemented": "Delete account not yet implemented"
+}

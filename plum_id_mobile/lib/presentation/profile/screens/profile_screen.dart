@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_review/in_app_review.dart';
+import 'package:plum_id_mobile/l10n/app_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:plum_id_mobile/core/theme/app_theme.dart';
 
 import '../notifiers/profile_notifier.dart';
 import '../widgets/profile_menu_item.dart';
+import '../widgets/language_selector_bottom_sheet.dart';
+import 'personal_info_screen.dart';
 import 'placeholder_screen.dart';
 
 // Provider pour récupérer la version de l'application
 final appVersionProvider = FutureProvider<String>((ref) async {
   final packageInfo = await PackageInfo.fromPlatform();
-  return packageInfo.version;
+  return '${packageInfo.version}+${packageInfo.buildNumber}';
 });
 
 class ProfileScreen extends ConsumerWidget {
@@ -19,12 +24,13 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileState = ref.watch(profileNotifierProvider);
     final versionState = ref.watch(appVersionProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Profil'),
-        backgroundColor: Colors.transparent,
+        title: Text(l10n.profileTitle),
+        backgroundColor: AppTheme.secondaryColor,
         elevation: 0,
         centerTitle: false,
       ),
@@ -46,8 +52,7 @@ class ProfileScreen extends ConsumerWidget {
                     data:
                         (profile) => _buildUserInfoSection(
                           context,
-                          firstName: profile.firstName,
-                          lastName: profile.lastName,
+                          username: profile.username,
                           email: profile.email,
                         ),
                     loading:
@@ -98,18 +103,36 @@ class ProfileScreen extends ConsumerWidget {
                         ProfileMenuItem(
                           icon: Icons.person_outline,
                           title: 'Informations personnelles',
-                          onTap:
-                              () => _navigateToPlaceholder(
-                                context,
-                                'Informations personnelles',
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => const PersonalInfoScreen(),
                               ),
+                            );
+                          },
                         ),
-                        const Divider(height: 1, indent: 56),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          color: AppTheme.dividerColor,
+                        ),
                         ProfileMenuItem(
                           icon: Icons.language,
-                          title: 'Langue',
-                          onTap:
-                              () => _navigateToPlaceholder(context, 'Langue'),
+                          title: l10n.language,
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              builder:
+                                  (context) =>
+                                      const LanguageSelectorBottomSheet(),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -118,9 +141,9 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Section Support & À propos
-                  const Text(
-                    'À propos',
-                    style: TextStyle(
+                  Text(
+                    l10n.about,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey,
@@ -133,7 +156,7 @@ class ProfileScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
+                          color: Colors.black.withOpacity(0.03),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -143,37 +166,55 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         ProfileMenuItem(
                           icon: Icons.star_outline,
-                          title: 'Notez nous',
-                          onTap:
-                              () =>
-                                  _navigateToPlaceholder(context, 'Notez nous'),
+                          title: l10n.rateUs,
+                          onTap: () async {
+                            final inAppReview = InAppReview.instance;
+                            if (await inAppReview.isAvailable()) {
+                              inAppReview.requestReview();
+                            }
+                          },
                         ),
-                        const Divider(height: 1, indent: 56),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          color: AppTheme.dividerColor,
+                        ),
                         ProfileMenuItem(
                           icon: Icons.privacy_tip_outlined,
-                          title: 'Politique de confidentialité',
+                          title: l10n.privacyPolicy,
                           onTap:
                               () => _navigateToPlaceholder(
                                 context,
-                                'Politique de confidentialité',
+                                l10n.privacyPolicy,
                               ),
                         ),
-                        const Divider(height: 1, indent: 56),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          color: AppTheme.dividerColor,
+                        ),
                         ProfileMenuItem(
                           icon: Icons.description_outlined,
-                          title: 'Conditions d\'utilisation',
+                          title: l10n.termsOfUse,
                           onTap:
                               () => _navigateToPlaceholder(
                                 context,
-                                'Conditions d\'utilisation',
+                                l10n.termsOfUse,
                               ),
                         ),
-                        const Divider(height: 1, indent: 56),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          color: AppTheme.dividerColor,
+                        ),
                         ProfileMenuItem(
                           icon: Icons.feedback_outlined,
-                          title: 'Feedback',
+                          title: l10n.feedback,
                           onTap:
-                              () => _navigateToPlaceholder(context, 'Feedback'),
+                              () => _navigateToPlaceholder(
+                                context,
+                                l10n.feedback,
+                              ),
                         ),
                       ],
                     ),
@@ -188,7 +229,7 @@ class ProfileScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
+                          color: Colors.black.withOpacity(0.03),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -198,29 +239,31 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         ProfileMenuItem(
                           icon: Icons.logout,
-                          title: 'Déconnexion',
+                          title: l10n.logout,
                           isDestructive: true,
                           onTap: () {
                             // TODO: Implémenter la déconnexion
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Déconnexion à implémenter'),
+                              SnackBar(
+                                content: Text(l10n.logoutNotImplemented),
                               ),
                             );
                           },
                         ),
-                        const Divider(height: 1, indent: 56),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          color: AppTheme.dividerColor,
+                        ),
                         ProfileMenuItem(
                           icon: Icons.delete_outline,
-                          title: 'Supprimer le compte',
+                          title: l10n.deleteAccount,
                           isDestructive: true,
                           onTap: () {
                             // TODO: Implémenter la suppression du compte
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Suppression du compte à implémenter',
-                                ),
+                              SnackBar(
+                                content: Text(l10n.deleteAccountNotImplemented),
                               ),
                             );
                           },
@@ -236,7 +279,7 @@ class ProfileScreen extends ConsumerWidget {
                     child: versionState.when(
                       data:
                           (version) => Text(
-                            'Version $version',
+                            '${l10n.version} $version',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade500,
@@ -271,8 +314,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildUserInfoSection(
     BuildContext context, {
-    required String firstName,
-    required String lastName,
+    required String username,
     required String email,
   }) {
     return Container(
@@ -299,8 +341,11 @@ class ProfileScreen extends ConsumerWidget {
             ),
             child: Center(
               child: Text(
-                '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
-                    .toUpperCase(),
+                username.isNotEmpty
+                    ? username
+                        .substring(0, username.length >= 2 ? 2 : 1)
+                        .toUpperCase()
+                    : 'U',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -315,7 +360,7 @@ class ProfileScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$firstName $lastName',
+                  username,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

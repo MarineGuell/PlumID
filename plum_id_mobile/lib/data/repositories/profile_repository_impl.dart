@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
 
+import '../models/user_profile_model.dart';
+
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../domain/entities/user_profile.dart';
@@ -15,6 +17,21 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Either<Failure, UserProfile>> getProfile() async {
     try {
       final remoteProfile = await remoteDataSource.getProfile();
+      return Right(remoteProfile.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserProfile>> updateProfile(
+    UserProfile profile,
+  ) async {
+    try {
+      final model = UserProfileModel.fromEntity(profile);
+      final remoteProfile = await remoteDataSource.updateProfile(model);
       return Right(remoteProfile.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
