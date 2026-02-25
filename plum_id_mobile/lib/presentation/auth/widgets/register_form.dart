@@ -14,7 +14,7 @@ class RegisterForm extends ConsumerStatefulWidget {
 
 class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -24,7 +24,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -46,7 +46,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           .read(authNotifierProvider.notifier)
           .register(
             _emailController.text,
-            _nameController.text, // Assuming username maps to name
+            _usernameController.text,
             _passwordController.text,
           );
     }
@@ -107,18 +107,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             );
           }
         }
-      } else if (next.hasValue && next.value == null) {
-        // null user means we just registered but not logged in, or logout.
-        // Assuming this trigger is from register succeeding if previous was loading
-        if (previous?.isLoading == true) {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Inscription réussie, veuillez vous connecter'),
-            ),
-          );
-        }
       }
     });
 
@@ -130,21 +118,21 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Name field
+          // Username field
           TextFormField(
-            controller: _nameController,
+            controller: _usernameController,
             decoration: InputDecoration(
-              labelText: 'Nom complet',
-              hintText: 'Jean Dupont',
+              labelText: 'Nom d\'utilisateur',
+              hintText: 'jeandupont',
               prefixIcon: const Icon(Icons.person_outline),
-              errorText: _fieldErrors['username'] ?? _fieldErrors['name'],
+              errorText: _fieldErrors['username'],
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Veuillez entrer votre nom';
+                return 'Veuillez entrer votre nom d\'utilisateur';
               }
               if (value.length < 2) {
-                return 'Le nom doit contenir au moins 2 caractères';
+                return 'Le nom d\'utilisateur doit contenir au moins 2 caractères';
               }
               return null;
             },

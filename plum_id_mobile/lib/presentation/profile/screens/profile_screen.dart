@@ -305,6 +305,8 @@ class ProfileScreen extends ConsumerWidget {
                                 content: Text(
                                   'Cette fonctionnalité sera bientôt disponible',
                                 ),
+                                duration: Duration(seconds: 2),
+                                backgroundColor: AppTheme.primaryColor,
                               ),
                             );
                           },

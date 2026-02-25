@@ -35,9 +35,9 @@ class AuthNotifier extends _$AuthNotifier {
     state = await AsyncValue.guard(() async {
       final registerUseCase = await ref.read(registerUseCaseProvider.future);
       await registerUseCase.execute(email, username, password);
-      // Wait, register doesn't return user, should we login automatically or just return to unauthenticated?
-      // Assuming register doesn't auto-login for now, we leave state as unauthenticated
-      return null;
+      // Auto-login after successful registration
+      final loginUseCase = await ref.read(loginUseCaseProvider.future);
+      return await loginUseCase.execute(email, password);
     });
   }
 

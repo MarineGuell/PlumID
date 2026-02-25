@@ -83,6 +83,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                       content: Text(
                         'Cette fonctionnalité sera bientôt disponible',
                       ),
+                      duration: Duration(seconds: 2),
+                      backgroundColor: AppTheme.primaryColor,
                     ),
                   );
                 },
