@@ -5,7 +5,9 @@ import '../../core/errors/failures.dart';
 /// Repository interface for managing identification history
 abstract class IHistoryRepository {
   /// Saves an identification to history
-  Future<Either<Failure, void>> saveIdentification(Identification identification);
+  Future<Either<Failure, void>> saveIdentification(
+    Identification identification,
+  );
 
   /// Gets all identifications from history
   Future<Either<Failure, List<Identification>>> getHistory();

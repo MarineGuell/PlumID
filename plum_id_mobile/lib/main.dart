@@ -9,10 +9,10 @@ import 'presentation/providers/providers.dart';
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Pre-initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
-  
+
   runApp(
     // Wrap the app with ProviderScope for Riverpod
     ProviderScope(

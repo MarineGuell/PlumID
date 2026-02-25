@@ -34,5 +34,4 @@ class AppConstants {
   static const double middleSpacing = 12.0;
   static const double mediumSpacing = 16.0;
   static const double largeSpacing = 30.0;
-
 }

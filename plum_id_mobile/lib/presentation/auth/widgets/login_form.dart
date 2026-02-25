@@ -26,7 +26,7 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState?.validate() ?? false) {
       // TODO: Implement login logic
       if (!mounted) return;
-      
+
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         const SnackBar(
@@ -73,9 +73,9 @@ class _LoginFormState extends State<LoginForm> {
               return null;
             },
           ),
-          
+
           const SizedBox(height: AppConstants.mediumSpacing),
-          
+
           // Password field
           TextFormField(
             controller: _passwordController,
@@ -105,9 +105,9 @@ class _LoginFormState extends State<LoginForm> {
               return null;
             },
           ),
-          
+
           const SizedBox(height: AppConstants.smallSpacing),
-          
+
           // Forgot password
           Align(
             alignment: Alignment.center,
@@ -124,16 +124,13 @@ class _LoginFormState extends State<LoginForm> {
               },
               child: const Text(
                 'Mot de passe oublié ?',
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
               ),
             ),
           ),
-          
+
           const SizedBox(height: AppConstants.smallSpacing),
-          
+
           // Login button
           ElevatedButton(
             onPressed: _handleLogin,

@@ -26,14 +26,14 @@ class BirdSpecies extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        commonName,
-        scientificName,
-        description,
-        habitat,
-        conservationStatus,
-        imageUrls,
-        regions,
-        observationMonths,
-      ];
+    id,
+    commonName,
+    scientificName,
+    description,
+    habitat,
+    conservationStatus,
+    imageUrls,
+    regions,
+    observationMonths,
+  ];
 }

@@ -28,13 +28,14 @@ class HistoryScreen extends ConsumerWidget {
         ],
       ),
       body: SafeArea(
-        child: historyState.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : historyState.error != null
+        child:
+            historyState.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : historyState.error != null
                 ? _buildErrorState(context, historyState.error!)
                 : historyState.identifications.isEmpty
-                    ? _buildEmptyState(context)
-                    : _buildHistoryList(context, historyState.identifications),
+                ? _buildEmptyState(context)
+                : _buildHistoryList(context, historyState.identifications),
       ),
     );
   }
@@ -46,26 +47,22 @@ class HistoryScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 80,
-              color: AppTheme.danger,
-            ),
+            const Icon(Icons.error_outline, size: 80, color: AppTheme.danger),
             const SizedBox(height: 24),
             Text(
               'Erreur',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppTheme.textOnPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: AppTheme.textOnPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               error,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textOnPrimary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppTheme.textOnPrimary),
             ),
           ],
         ),
@@ -80,26 +77,22 @@ class HistoryScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.history,
-              size: 80,
-              color: AppTheme.textOnPrimary,
-            ),
+            const Icon(Icons.history, size: 80, color: AppTheme.textOnPrimary),
             const SizedBox(height: 24),
             Text(
               'Historique',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppTheme.textOnPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: AppTheme.textOnPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               'Vos identifications de plumes apparaîtront ici',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textOnPrimary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppTheme.textOnPrimary),
             ),
           ],
         ),
@@ -107,7 +100,10 @@ class HistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHistoryList(BuildContext context, List<Identification> identifications) {
+  Widget _buildHistoryList(
+    BuildContext context,
+    List<Identification> identifications,
+  ) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       itemCount: identifications.length,
@@ -126,9 +122,7 @@ class HistoryScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             leading: Container(
               width: 48,
               height: 48,
@@ -154,17 +148,11 @@ class HistoryScreen extends ConsumerWidget {
               padding: EdgeInsets.only(top: 4),
               child: Text(
                 'Voir les détails',
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
               ),
             ),
             trailing: IconButton(
-              icon: const Icon(
-                Icons.delete_outline,
-                color: AppTheme.danger,
-              ),
+              icon: const Icon(Icons.delete_outline, color: AppTheme.danger),
               onPressed: () {
                 // TODO: Implement delete functionality
                 ScaffoldMessenger.of(context).showSnackBar(

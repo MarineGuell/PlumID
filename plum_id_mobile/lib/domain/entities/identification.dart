@@ -24,12 +24,12 @@ class Identification extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        imageUrl,
-        localImagePath,
-        timestamp,
-        location,
-        predictions,
-        selectedPrediction,
-      ];
+    id,
+    imageUrl,
+    localImagePath,
+    timestamp,
+    location,
+    predictions,
+    selectedPrediction,
+  ];
 }

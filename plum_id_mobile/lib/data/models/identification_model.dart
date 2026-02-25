@@ -43,14 +43,16 @@ class IdentificationModel with _$IdentificationModel {
       imageUrl: entity.imageUrl,
       localImagePath: entity.localImagePath,
       timestamp: entity.timestamp,
-      location: entity.location != null
-          ? LocationModel.fromEntity(entity.location!)
-          : null,
+      location:
+          entity.location != null
+              ? LocationModel.fromEntity(entity.location!)
+              : null,
       predictions:
           entity.predictions.map((p) => PredictionModel.fromEntity(p)).toList(),
-      selectedPrediction: entity.selectedPrediction != null
-          ? PredictionModel.fromEntity(entity.selectedPrediction!)
-          : null,
+      selectedPrediction:
+          entity.selectedPrediction != null
+              ? PredictionModel.fromEntity(entity.selectedPrediction!)
+              : null,
     );
   }
 }

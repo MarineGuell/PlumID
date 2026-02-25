@@ -22,12 +22,12 @@ class Prediction extends Equatable {
 
   @override
   List<Object?> get props => [
-        speciesId,
-        speciesName,
-        scientificName,
-        confidence,
-        geographicWeight,
-        temporalWeight,
-        finalScore,
-      ];
+    speciesId,
+    speciesName,
+    scientificName,
+    confidence,
+    geographicWeight,
+    temporalWeight,
+    finalScore,
+  ];
 }

@@ -49,11 +49,7 @@ class IdentificationNotifier extends _$IdentificationNotifier {
 
   /// Identifies a bird from an image
   Future<void> identifyBird(String imagePath) async {
-    state = state.copyWith(
-      isLoading: true,
-      error: null,
-      imagePath: imagePath,
-    );
+    state = state.copyWith(isLoading: true, error: null, imagePath: imagePath);
 
     // Get current location if available
     Location? location;
@@ -82,10 +78,7 @@ class IdentificationNotifier extends _$IdentificationNotifier {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          error: failure.message,
-        );
+        state = state.copyWith(isLoading: false, error: failure.message);
       },
       (predictions) {
         state = state.copyWith(

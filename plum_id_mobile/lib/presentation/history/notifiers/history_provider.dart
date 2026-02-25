@@ -49,10 +49,7 @@ class HistoryNotifier extends _$HistoryNotifier {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          error: failure.message,
-        );
+        state = state.copyWith(isLoading: false, error: failure.message);
       },
       (identifications) {
         state = state.copyWith(

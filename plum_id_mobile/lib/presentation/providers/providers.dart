@@ -51,10 +51,7 @@ Dio dio(Ref ref) {
   );
 
   // Add interceptors for logging, auth, etc.
-  dio.interceptors.add(LogInterceptor(
-    requestBody: true,
-    responseBody: true,
-  ));
+  dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
   return dio;
 }
@@ -69,16 +66,12 @@ Future<SharedPreferences> sharedPreferences(Ref ref) async {
 // ============================================================================
 
 @riverpod
-IIdentificationRemoteDataSource identificationRemoteDataSource(
-  Ref ref,
-) {
+IIdentificationRemoteDataSource identificationRemoteDataSource(Ref ref) {
   return IdentificationRemoteDataSource(ref.watch(dioProvider));
 }
 
 @riverpod
-IHistoryLocalDataSource historyLocalDataSource(
-  Ref ref,
-) {
+IHistoryLocalDataSource historyLocalDataSource(Ref ref) {
   final sharedPrefs = ref.watch(sharedPreferencesProvider);
   return sharedPrefs.when(
     data: (prefs) => HistoryLocalDataSource(prefs),
@@ -97,9 +90,7 @@ ILocationDataSource locationDataSource(Ref ref) {
 // ============================================================================
 
 @riverpod
-IIdentificationRepository identificationRepository(
-  Ref ref,
-) {
+IIdentificationRepository identificationRepository(Ref ref) {
   return IdentificationRepositoryImpl(
     ref.watch(identificationRemoteDataSourceProvider),
   );
@@ -107,16 +98,12 @@ IIdentificationRepository identificationRepository(
 
 @riverpod
 IHistoryRepository historyRepository(Ref ref) {
-  return HistoryRepositoryImpl(
-    ref.watch(historyLocalDataSourceProvider),
-  );
+  return HistoryRepositoryImpl(ref.watch(historyLocalDataSourceProvider));
 }
 
 @riverpod
 ILocationRepository locationRepository(Ref ref) {
-  return LocationRepositoryImpl(
-    ref.watch(locationDataSourceProvider),
-  );
+  return LocationRepositoryImpl(ref.watch(locationDataSourceProvider));
 }
 
 // ============================================================================
@@ -139,15 +126,11 @@ GetHistory getHistoryUseCase(Ref ref) {
 }
 
 @riverpod
-SaveIdentification saveIdentificationUseCase(
-  Ref ref,
-) {
+SaveIdentification saveIdentificationUseCase(Ref ref) {
   return SaveIdentification(ref.watch(historyRepositoryProvider));
 }
 
 @riverpod
-GetCurrentLocation getCurrentLocationUseCase(
-  Ref ref,
-) {
+GetCurrentLocation getCurrentLocationUseCase(Ref ref) {
   return GetCurrentLocation(ref.watch(locationRepositoryProvider));
 }
