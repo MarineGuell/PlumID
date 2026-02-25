@@ -33,7 +33,7 @@ class ProfileScreen extends ConsumerWidget {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(l10n.profileTitle),
-        backgroundColor: AppTheme.secondaryColor,
+        backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         centerTitle: false,
       ),

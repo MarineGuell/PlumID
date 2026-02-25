@@ -16,7 +16,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     return const UserProfileModel(
       id: 1,
       username: 'marineguell',
-      email: 'marine.guell@example.com',
+      email: 'marine.guell@plum-id.com',
     );
   }
 

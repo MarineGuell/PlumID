@@ -95,27 +95,9 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: AppTheme.secondaryColor,
+        backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         title: const Text('Informations personnelles'),
-        actions: [
-          if (profileState is AsyncData)
-            TextButton.icon(
-              icon: Icon(
-                _isEditing ? Icons.close : Icons.edit,
-                color: _isEditing ? Colors.red : Theme.of(context).primaryColor,
-              ),
-              label: Text(
-                _isEditing ? 'Annuler' : 'Modifier',
-                style: TextStyle(
-                  color:
-                      _isEditing ? Colors.red : Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onPressed: _toggleEdit,
-            ),
-        ],
       ),
       body: profileState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -128,6 +110,25 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
             ),
         data: (profile) => _buildContent(context, profile),
       ),
+      floatingActionButton:
+          profileState is AsyncData
+              ? FloatingActionButton.extended(
+                onPressed: _toggleEdit,
+                backgroundColor:
+                    _isEditing ? Colors.red : Theme.of(context).primaryColor,
+                icon: Icon(
+                  _isEditing ? Icons.close : Icons.edit,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  _isEditing ? 'Annuler' : 'Modifier',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+              : null,
     );
   }
 
