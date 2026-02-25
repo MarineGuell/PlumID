@@ -18,6 +18,10 @@ from api.models.base import Base
 
 
 class Users(Base):
+    """
+    User model representing the 'users' table in the database.
+    Stores authentication details and user profile information.
+    """
     __tablename__ = "users"
 
     idusers = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -42,16 +46,16 @@ class Users(Base):
         index=True,
     )
 
-    # --- Nouveau : statut de vérification de l'email ---
-    is_verified = Column(
-        Boolean,
-        nullable=False,
-        server_default="0",  # MySQL: TINYINT(1) par défaut
-    )
-    email_verified_at = Column(
-        DateTime,
-        nullable=True,
-    )
+    # --- Temporairement désactivé : statut de vérification de l'email ---
+    # is_verified = Column(
+    #     Boolean,
+    #     nullable=False,
+    #     server_default="0",  # MySQL: TINYINT(1) par défaut
+    # )
+    # email_verified_at = Column(
+    #     DateTime,
+    #     nullable=True,
+    # )
 
     # --- Nouveau : statut d'activation du compte ---
     is_active = Column(

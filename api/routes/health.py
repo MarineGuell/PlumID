@@ -6,8 +6,12 @@ from fastapi import APIRouter, Request
 
 router = APIRouter(tags=["health"])
 
+
 @router.get("/health")
 async def health(request: Request):
+    """
+    Health check endpoint to verify API operations and latency.
+    """
     t0 = time.perf_counter()
 
     dt = (time.perf_counter() - t0) * 1000
@@ -15,4 +19,3 @@ async def health(request: Request):
         "status": "ok",
         "latency_ms": round(dt, 1),
     }
-

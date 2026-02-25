@@ -16,6 +16,9 @@ from .middlewares.body_limit import BodySizeLimitMiddleware
 from .middlewares.rate_limit import RateLimitMiddleware
 from .security.antireplay import require_signed_request
 
+from .db import engine
+from .models import Base
+
 # Routers
 from .routes.health import router as health_router
 from .routes.species import router as species_router
@@ -28,6 +31,9 @@ log = logging.getLogger("uvicorn")
 # ---------------------------------------------------------------------------
 # Application
 # ---------------------------------------------------------------------------
+# Initialisation de la base de données (création des tables manquantes)
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(title="Plum'ID - API", version=settings.api_version)
 
 # --- Tracing (X-Trace-Id + logs latence) ---
@@ -65,6 +71,8 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 # Exception handlers
 # ---------------------------------------------------------------------------
+
+
 def _problem_json(
     *,
     status: int,
@@ -125,6 +133,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 # Exemple d’endpoint sensible signé (HMAC + anti-replay)
 # ---------------------------------------------------------------------------
 require_sig = require_signed_request(settings, _redis)
+
 
 @app.post("/upload/feather", dependencies=[Depends(require_sig)])
 async def upload_feather(file: UploadFile = File(...)):

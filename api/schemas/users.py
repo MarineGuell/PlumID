@@ -11,10 +11,10 @@ class UserBase(BaseModel):
     mail: Optional[EmailStr] = None
     username: Optional[str] = None
     role: Optional[str] = None
-    # Statut de vérification de l'email
-    is_verified: Optional[bool] = None
+    # Statut de vérification de l'email (Temporairement désactivé)
+    # is_verified: Optional[bool] = None
     # Date/heure de vérification (UTC)
-    email_verified_at: Optional[datetime] = None
+    # email_verified_at: Optional[datetime] = None
     # Nouveau : statut d'activation du compte
     is_active: Optional[bool] = None
 
@@ -60,14 +60,16 @@ class PasswordResetRequest(BaseModel):
     """
     Payload pour demander une réinitialisation de mot de passe.
     """
-    mail: EmailStr = Field(..., description="Adresse email du compte à réinitialiser")
+    mail: EmailStr = Field(...,
+                           description="Adresse email du compte à réinitialiser")
 
 
 class PasswordResetConfirm(BaseModel):
     """
     Payload pour appliquer une réinitialisation de mot de passe.
     """
-    token: str = Field(..., description="Token de réinitialisation reçu par email")
+    token: str = Field(...,
+                       description="Token de réinitialisation reçu par email")
     new_password: str = Field(
         ...,
         min_length=8,

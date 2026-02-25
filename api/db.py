@@ -40,16 +40,20 @@ engine = create_engine(
     **POOL_KW,
 )
 
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
+SessionLocal = sessionmaker(
+    bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
 
 
-@contextmanager
 def get_db() -> Iterator[Session]:
-    """Dépendance FastAPI: yield une session SQLAlchemy proprement fermée."""
-    db: Optional[Session] = None
+    """
+    FastAPI dependency that provides a SQLAlchemy session.
+    It yields a database session and ensures it is closed after the request is completed.
+
+    Yields:
+        Session: A SQLAlchemy database session.
+    """
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         yield db
     finally:
-        if db is not None:
-            db.close()
+        db.close()
