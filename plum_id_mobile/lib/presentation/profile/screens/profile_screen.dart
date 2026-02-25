@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:plum_id_mobile/l10n/app_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:plum_id_mobile/core/theme/app_theme.dart';
+import 'package:plum_id_mobile/core/constants/app_constants.dart';
 
 import '../notifiers/profile_notifier.dart';
 import '../widgets/profile_menu_item.dart';
@@ -182,11 +184,21 @@ class ProfileScreen extends ConsumerWidget {
                         ProfileMenuItem(
                           icon: Icons.privacy_tip_outlined,
                           title: l10n.privacyPolicy,
-                          onTap:
-                              () => _navigateToPlaceholder(
-                                context,
-                                l10n.privacyPolicy,
-                              ),
+                          onTap: () async {
+                            final url = Uri.parse(
+                              AppConstants.privacyPolicyUrl,
+                            );
+                            if (await canLaunchUrl(url)) {
+                              try {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.inAppBrowserView,
+                                );
+                              } catch (e) {
+                                debugPrint('Could not launch url: $e');
+                              }
+                            }
+                          },
                         ),
                         const Divider(
                           height: 1,
@@ -196,11 +208,19 @@ class ProfileScreen extends ConsumerWidget {
                         ProfileMenuItem(
                           icon: Icons.description_outlined,
                           title: l10n.termsOfUse,
-                          onTap:
-                              () => _navigateToPlaceholder(
-                                context,
-                                l10n.termsOfUse,
-                              ),
+                          onTap: () async {
+                            final url = Uri.parse(AppConstants.termsOfUseUrl);
+                            if (await canLaunchUrl(url)) {
+                              try {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.inAppBrowserView,
+                                );
+                              } catch (e) {
+                                debugPrint('Could not launch url: $e');
+                              }
+                            }
+                          },
                         ),
                         const Divider(
                           height: 1,

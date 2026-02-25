@@ -74,6 +74,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   in_app_review: ^2.0.11
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
