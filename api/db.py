@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from api.settings import settings
+
 from api.models.base import Base
 
 DB_URL: str = settings.db_url

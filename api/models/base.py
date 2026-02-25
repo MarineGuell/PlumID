@@ -1,4 +1,5 @@
-from __future__ import annotations
-from api.db import Base  # réexport pratique
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 __all__ = ["Base"]
