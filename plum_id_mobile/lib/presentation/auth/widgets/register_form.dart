@@ -67,9 +67,9 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          
+
           const SizedBox(height: AppConstants.mediumSpacing),
-          
+
           // Email field
           TextFormField(
             controller: _emailController,
@@ -89,9 +89,9 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          
+
           const SizedBox(height: AppConstants.mediumSpacing),
-          
+
           // Password field
           TextFormField(
             controller: _passwordController,
@@ -123,9 +123,9 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          
+
           const SizedBox(height: AppConstants.mediumSpacing),
-          
+
           // Confirm password field
           TextFormField(
             controller: _confirmPasswordController,
@@ -157,9 +157,9 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          
+
           const SizedBox(height: AppConstants.largeSpacing),
-          
+
           // Register button
           ElevatedButton(
             onPressed: _handleRegister,
@@ -179,7 +179,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: AppConstants.middleSpacing),
           // Terms and conditions
           Text(
@@ -187,7 +187,7 @@ class _RegisterFormState extends State<RegisterForm> {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppTheme.textSecondary,
               fontSize: 12,
-              decoration: TextDecoration.underline
+              decoration: TextDecoration.underline,
             ),
             textAlign: TextAlign.center,
           ),

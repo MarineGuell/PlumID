@@ -10,7 +10,8 @@ class AppTheme {
   static const Color surfaceColor = Colors.white;
   static const Color errorColor = Color(0xFFD32F2F);
   static const Color danger = Color(0xFFD32F2F);
-  
+  static const Color dividerColor = Color(0xFFE5E7EB);
+
   // Logo colors
   static const Color logoBackground = Color(0xFF8FBAAA); // Logo background
   static const Color logoIcon = Colors.white; // Logo icon color

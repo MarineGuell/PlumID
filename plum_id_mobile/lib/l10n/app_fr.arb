@@ -1,0 +1,25 @@
+{
+  "@@locale": "fr",
+  "profileTitle": "Profil",
+  "@profileTitle": {
+    "description": "Titre principal de la page profil"
+  },
+  "personalInformation": "Informations personnelles",
+  "language": "Langue",
+  "rateUs": "Notez nous",
+  "privacyPolicy": "Politique de confidentialité",
+  "termsOfUse": "Conditions d'utilisation",
+  "feedback": "Feedback",
+  "deleteAccount": "Supprimer le compte",
+  "logout": "Déconnexion",
+  "version": "Version",
+  "about": "À propos",
+  "logoutNotImplemented": "Déconnexion à implémenter",
+  "deleteAccountNotImplemented": "Suppression du compte à implémenter",
+  "logoutConfirmationTitle": "Déconnexion",
+  "logoutConfirmationMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "deleteAccountConfirmationTitle": "Suppression du compte",
+  "deleteAccountConfirmationMessage": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible."
+}

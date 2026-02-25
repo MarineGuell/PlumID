@@ -6,7 +6,8 @@ import '../../core/errors/failures.dart';
 import 'usecase.dart';
 
 /// Use case for getting species details
-class GetSpeciesDetails implements UseCase<BirdSpecies, GetSpeciesDetailsParams> {
+class GetSpeciesDetails
+    implements UseCase<BirdSpecies, GetSpeciesDetailsParams> {
   final IIdentificationRepository repository;
 
   GetSpeciesDetails(this.repository);

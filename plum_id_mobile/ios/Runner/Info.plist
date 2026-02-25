@@ -61,5 +61,10 @@
 	<string>Nous avons besoin de votre localisation pour géolocaliser les observations.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Nous avons besoin de votre localisation pour géolocaliser les observations.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>http</string>
+		<string>https</string>
+	</array>
 </dict>
 </plist>
