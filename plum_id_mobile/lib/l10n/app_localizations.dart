@@ -175,6 +175,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Suppression du compte à implémenter'**
   String get deleteAccountNotImplemented;
+
+  /// No description provided for @logoutConfirmationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnexion'**
+  String get logoutConfirmationTitle;
+
+  /// No description provided for @logoutConfirmationMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir vous déconnecter ?'**
+  String get logoutConfirmationMessage;
+
+  /// No description provided for @cancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get cancel;
+
+  /// No description provided for @confirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirm;
+
+  /// No description provided for @deleteAccountConfirmationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression du compte'**
+  String get deleteAccountConfirmationTitle;
+
+  /// No description provided for @deleteAccountConfirmationMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.'**
+  String get deleteAccountConfirmationMessage;
 }
 
 class _AppLocalizationsDelegate

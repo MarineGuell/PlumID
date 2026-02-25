@@ -3,6 +3,7 @@ import '../models/user_profile_model.dart';
 abstract class ProfileRemoteDataSource {
   Future<UserProfileModel> getProfile();
   Future<UserProfileModel> updateProfile(UserProfileModel profile);
+  Future<void> deleteAccount();
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -26,5 +27,11 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
     // Retourner le profil mis à jour
     return profile;
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    // Simuler une requête réseau (mock)
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

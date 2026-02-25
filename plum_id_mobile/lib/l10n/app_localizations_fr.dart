@@ -47,4 +47,24 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get deleteAccountNotImplemented =>
       'Suppression du compte à implémenter';
+
+  @override
+  String get logoutConfirmationTitle => 'Déconnexion';
+
+  @override
+  String get logoutConfirmationMessage =>
+      'Êtes-vous sûr de vouloir vous déconnecter ?';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get confirm => 'Confirmer';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Suppression du compte';
+
+  @override
+  String get deleteAccountConfirmationMessage =>
+      'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.';
 }

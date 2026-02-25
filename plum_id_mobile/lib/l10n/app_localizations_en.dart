@@ -47,4 +47,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountNotImplemented =>
       'Delete account not yet implemented';
+
+  @override
+  String get logoutConfirmationTitle => 'Logout';
+
+  @override
+  String get logoutConfirmationMessage => 'Are you sure you want to log out?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationMessage =>
+      'Are you sure you want to permanently delete your account? This action cannot be undone.';
 }

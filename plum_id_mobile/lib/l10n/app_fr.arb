@@ -15,5 +15,11 @@
   "version": "Version",
   "about": "À propos",
   "logoutNotImplemented": "Déconnexion à implémenter",
-  "deleteAccountNotImplemented": "Suppression du compte à implémenter"
+  "deleteAccountNotImplemented": "Suppression du compte à implémenter",
+  "logoutConfirmationTitle": "Déconnexion",
+  "logoutConfirmationMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "deleteAccountConfirmationTitle": "Suppression du compte",
+  "deleteAccountConfirmationMessage": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible."
 }

@@ -10,6 +10,8 @@ import 'package:plum_id_mobile/core/constants/app_constants.dart';
 import '../notifiers/profile_notifier.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/language_selector_bottom_sheet.dart';
+import '../../auth/notifiers/auth_notifier.dart';
+import '../../auth/screens/auth_screen.dart';
 import 'personal_info_screen.dart';
 
 // Provider pour récupérer la version de l'application
@@ -282,14 +284,7 @@ class ProfileScreen extends ConsumerWidget {
                           icon: Icons.logout,
                           title: l10n.logout,
                           isDestructive: true,
-                          onTap: () {
-                            // TODO: Implémenter la déconnexion
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.logoutNotImplemented),
-                              ),
-                            );
-                          },
+                          onTap: () => _showLogoutDialog(context, ref),
                         ),
                         const Divider(
                           height: 1,
@@ -300,14 +295,7 @@ class ProfileScreen extends ConsumerWidget {
                           icon: Icons.delete_outline,
                           title: l10n.deleteAccount,
                           isDestructive: true,
-                          onTap: () {
-                            // TODO: Implémenter la suppression du compte
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.deleteAccountNotImplemented),
-                              ),
-                            );
-                          },
+                          onTap: () => _showDeleteAccountDialog(context, ref),
                         ),
                       ],
                     ),
@@ -417,6 +405,185 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (bottomSheetContext) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.logoutConfirmationTitle,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppConstants.mediumSpacing),
+                  Text(
+                    l10n.logoutConfirmationMessage,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppConstants.largeSpacing),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Récupérer le navigator avant la fermeture du bottom sheet
+                      final navigator = Navigator.of(context);
+
+                      // Fermer le bottom sheet
+                      Navigator.of(bottomSheetContext).pop();
+
+                      // Déconnecter
+                      await ref.read(authNotifierProvider.notifier).logout();
+
+                      // Rediriger
+                      navigator.pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const AuthScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.errorColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.confirm,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.smallSpacing),
+                  TextButton(
+                    onPressed: () => Navigator.of(bottomSheetContext).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(
+                      l10n.cancel,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (bottomSheetContext) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.deleteAccountConfirmationTitle,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppConstants.mediumSpacing),
+                  Text(
+                    l10n.deleteAccountConfirmationMessage,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppConstants.largeSpacing),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Récupérer le navigator avant la fermeture du bottom sheet
+                      final navigator = Navigator.of(context);
+
+                      // Fermer le bottom sheet
+                      Navigator.of(bottomSheetContext).pop();
+
+                      // Appeler la suppression mockée
+                      await ref
+                          .read(profileNotifierProvider.notifier)
+                          .deleteAccount();
+                      await ref.read(authNotifierProvider.notifier).logout();
+
+                      // Rediriger vers AuthScreen
+                      navigator.pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const AuthScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.errorColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.confirm,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppConstants.smallSpacing),
+                  TextButton(
+                    onPressed: () => Navigator.of(bottomSheetContext).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(
+                      l10n.cancel,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
     );
   }
 }

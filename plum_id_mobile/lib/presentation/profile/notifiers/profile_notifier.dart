@@ -47,4 +47,20 @@ class ProfileNotifier extends _$ProfileNotifier {
       (updatedProfile) => AsyncValue.data(updatedProfile),
     );
   }
+
+  Future<void> deleteAccount() async {
+    state = const AsyncValue.loading();
+
+    final repository = ref.read(profileRepositoryProvider);
+    final result = await repository.deleteAccount();
+
+    // Si échec, on set l'erreur. Si succès, on mock en error pour ne rien afficher ou autre
+    result.fold(
+      (failure) =>
+          state = AsyncValue.error(failure.message, StackTrace.current),
+      (_) =>
+          state =
+              const AsyncValue.loading(), // Optionnel, puisqu'on va quitter l'écran
+    );
+  }
 }
