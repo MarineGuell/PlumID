@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: plumid-api
+  namespace: plumid
+  labels:
+    app: plumid-api
+spec:
+  selector:
+    app: plumid-api
+  ports:
+    - name: http
+      port: 8000       # port vu dans le cluster
+      targetPort: 8000 # port du container
+  type: ClusterIP

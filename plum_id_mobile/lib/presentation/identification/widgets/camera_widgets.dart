@@ -16,17 +16,39 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   late CameraController controller;
+  // Variables pour le Flash
+  FlashMode _currentFlashMode = FlashMode.off;
+
+  // Variables pour le Zoom
+  double _minAvailableZoom = 1.0;
+  double _maxAvailableZoom = 1.0;
+  double _currentZoomLevel = 1.0;
+  double _baseZoomLevel = 1.0;
+
+  // Variable pour indiquer qu'une photo est en cours de chargement
+  bool _isTakingPicture = false;
 
   @override
   void initState() {
     super.initState();
-    controller = CameraController(widget.camera, ResolutionPreset.max);
+    controller = CameraController(
+      widget.camera,
+      ResolutionPreset.max,
+      enableAudio: false,
+    );
     controller
         .initialize()
-        .then((_) {
+        .then((_) async {
           if (!mounted) {
             return;
           }
+
+          // Récupérer les limites de zoom de l'appareil
+          _minAvailableZoom = await controller.getMinZoomLevel();
+          _maxAvailableZoom = await controller.getMaxZoomLevel();
+
+          // Initialiser le flash
+          await controller.setFlashMode(_currentFlashMode);
           setState(() {});
         })
         .catchError((Object e) {
@@ -36,6 +58,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 print("Accès à la caméra refusé");
                 break;
               default:
+                print("Erreur caméra : $e");
                 break;
             }
           }
@@ -48,7 +71,60 @@ class _CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
+  // --- Gestion du Flash ---
+  Future<void> _toggleFlash() async {
+    FlashMode nextMode;
+    switch (_currentFlashMode) {
+      case FlashMode.off:
+        nextMode = FlashMode.auto;
+        break;
+      case FlashMode.auto:
+        nextMode = FlashMode.always;
+        break;
+      case FlashMode.always:
+        nextMode = FlashMode.torch;
+        break;
+      case FlashMode.torch:
+        nextMode = FlashMode.off;
+        break;
+    }
+
+    await controller.setFlashMode(nextMode);
+    setState(() {
+      _currentFlashMode = nextMode;
+    });
+  }
+
+  IconData _getFlashIcon() {
+    switch (_currentFlashMode) {
+      case FlashMode.off:
+        return Icons.flash_off;
+      case FlashMode.auto:
+        return Icons.flash_auto;
+      case FlashMode.always:
+        return Icons.flash_on;
+      case FlashMode.torch:
+        return Icons.highlight; // Mode lampe torche
+    }
+  }
+
+  // --- Gestion de la mise au point (Focus au tap) ---
+  void _onFocusPointTap(TapDownDetails details, BoxConstraints constraints) {
+    if (!controller.value.isInitialized) return;
+
+    final offset = Offset(
+      details.localPosition.dx / constraints.maxWidth,
+      details.localPosition.dy / constraints.maxHeight,
+    );
+    controller.setFocusPoint(offset);
+  }
+
   Future<void> _takePicture() async {
+    if (_isTakingPicture || !controller.value.isInitialized) return;
+
+    setState(() {
+      _isTakingPicture = true;
+    });
     try {
       final image = await controller.takePicture();
 
@@ -157,41 +233,178 @@ class _CameraScreenState extends State<CameraScreen> {
           SnackBar(content: Text("Erreur lors de la sauvegarde de la photo")),
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTakingPicture = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (!controller.value.isInitialized) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: Colors.black, // Fond noir pour éviter le flash blanc
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Loader aux couleurs de votre thème
+              const CircularProgressIndicator(color: AppTheme.secondaryColor),
+              const SizedBox(height: 20),
+              // Petit texte d'attente stylisé
+              Text(
+                "Démarrage de la caméra...",
+                style: TextStyle(
+                  color: AppTheme.secondaryColor.withValues(alpha: 0.8),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Caméra')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 550, width: 500, child: CameraPreview(controller)),
-            const SizedBox(height: 25),
-            InkWell(
-              onTap: _takePicture,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: AppTheme.secondaryColor,
-                  shape: BoxShape.circle,
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Prendre une plume'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          // Bouton Flash
+          IconButton(
+            icon: Icon(_getFlashIcon(), color: Colors.white),
+            onPressed: _toggleFlash,
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return GestureDetector(
+                        // Pinch-to-zoom
+                        onScaleStart: (details) {
+                          _baseZoomLevel = _currentZoomLevel;
+                        },
+                        onScaleUpdate: (details) async {
+                          double zoom = _baseZoomLevel * details.scale;
+                          zoom = zoom.clamp(
+                            _minAvailableZoom,
+                            _maxAvailableZoom,
+                          );
+                          if (zoom != _currentZoomLevel) {
+                            setState(() {
+                              _currentZoomLevel = zoom;
+                            });
+                            await controller.setZoomLevel(zoom);
+                          }
+                        },
+                        // Tap-to-focus
+                        onTapDown:
+                            (details) => _onFocusPointTap(details, constraints),
+                        child: Center(child: CameraPreview(controller)),
+                      );
+                    },
+                  ),
                 ),
-                child: Icon(
-                  Icons.camera_alt,
-                  size: 60,
-                  color: AppTheme.textOnPrimary,
+
+                // Panneau de contrôle en bas
+                Container(
+                  color: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24,
+                    horizontal: 16,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Placeholder pour garder le bouton central au milieu
+                      const SizedBox(width: 60),
+
+                      // Bouton photo
+                      InkWell(
+                        onTap:
+                            _takePicture, // Assurez-vous que cette méthode est bien présente
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppTheme.secondaryColor,
+                              width: 4,
+                            ),
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: 65,
+                              height: 65,
+                              decoration: const BoxDecoration(
+                                color: AppTheme.secondaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Indicateur de zoom
+                      SizedBox(
+                        width: 60,
+                        child: Text(
+                          "${_currentZoomLevel.toStringAsFixed(1)}x",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (_isTakingPicture)
+            Container(
+              color: Colors.black.withValues(
+                alpha: 0.5,
+              ), // Fond noir semi-transparent
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(
+                      color: AppTheme.secondaryColor,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Capture en cours...",
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

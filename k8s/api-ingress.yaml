@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: plumid-api-ingress
+  namespace: plumid
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # Si tu utilises cert-manager (TLS auto Let's Encrypt)
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  rules:
+    - host: api.plumid.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: plumid-api
+                port:
+                  number: 8000
+
+  # TLS (optionnel si tu as cert-manager ou des certs déjà gérés)
+  # tls:
+  #   - hosts:
+  #       - api.plumid.example.com
+  #     secretName: plumid-api-tls
