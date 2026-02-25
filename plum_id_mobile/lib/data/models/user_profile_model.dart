@@ -9,7 +9,7 @@ part 'user_profile_model.g.dart';
 class UserProfileModel with _$UserProfileModel {
   const factory UserProfileModel({
     @JsonKey(name: 'idusers') required int id,
-    @JsonKey(name: 'usernname') required String username,
+    @JsonKey(name: 'username') required String username,
     @JsonKey(name: 'mail') required String email,
   }) = _UserProfileModel;
 

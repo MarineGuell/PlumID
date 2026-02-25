@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 import 'package:plum_id_mobile/core/constants/app_constants.dart';
+import 'package:plum_id_mobile/presentation/auth/notifiers/auth_notifier.dart';
 import '../../../core/theme/app_theme.dart';
 
-class LoginForm extends StatefulWidget {
+class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  ConsumerState<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -22,33 +25,58 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _handleLogin() async {
+  void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {
-      // TODO: Implement login logic
-      if (!mounted) return;
-
-      final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Connexion en cours...'),
           backgroundColor: AppTheme.secondaryColor,
-          duration: Duration(seconds: 2),
+          duration: Duration(milliseconds: 1600),
         ),
       );
-
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Clear the snackbar before navigation
-      messenger.clearSnackBars();
-
-      // todo: On successful login, navigate to home
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      ref
+          .read(authNotifierProvider.notifier)
+          .login(_emailController.text, _passwordController.text);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authNotifierProvider, (previous, next) {
+
+      if (next.isLoading) return;
+
+      if (next.hasError) {
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        String errorMessage = 'Erreur de connexion';
+        final error = next.error;
+
+        if (error is DioException) {
+          final data = error.response?.data;
+          if (data is Map<String, dynamic> && data['error'] != null) {
+            final apiError = data['error'];
+            errorMessage = apiError['message'] ?? errorMessage;
+
+            if (error.response?.statusCode == 401) {
+              errorMessage = 'Email ou mot de passe invalide';
+            } else if (error.response?.statusCode == 404) {
+              errorMessage = 'Compte introuvable';
+            }
+          }
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
+      }
+    });
+
+    final authState = ref.watch(authNotifierProvider);
+    final isLoading = authState.isLoading;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -67,9 +95,9 @@ class _LoginFormState extends State<LoginForm> {
               if (value == null || value.isEmpty) {
                 return 'Veuillez entrer votre email';
               }
-              // if (!value.contains('@')) {
-              //   return 'Veuillez entrer un email valide';
-              // }
+              if (!value.contains('@')) {
+                return 'Veuillez entrer un email valide';
+              }
               return null;
             },
           ),
@@ -133,7 +161,7 @@ class _LoginFormState extends State<LoginForm> {
 
           // Login button
           ElevatedButton(
-            onPressed: _handleLogin,
+            onPressed: isLoading ? null : _handleLogin,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.secondaryColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -141,14 +169,24 @@ class _LoginFormState extends State<LoginForm> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Se connecter',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+            child:
+                isLoading
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : const Text(
+                      'Se connecter',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
           ),
         ],
       ),

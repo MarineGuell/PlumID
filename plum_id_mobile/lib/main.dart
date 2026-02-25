@@ -5,6 +5,7 @@ import 'package:plum_id_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/locale_notifier.dart';
+import 'presentation/auth/notifiers/auth_notifier.dart';
 import 'presentation/auth/screens/auth_screen.dart';
 import 'presentation/widgets/main_navigator.dart';
 import 'presentation/providers/providers.dart';
@@ -36,6 +37,7 @@ class PlumIDApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Added WidgetRef ref
     final locale = ref.watch(localeNotifierProvider); // Added locale watch
+    final authState = ref.watch(authNotifierProvider);
 
     return MaterialApp(
       title: "Plum'ID",
@@ -51,9 +53,18 @@ class PlumIDApp extends ConsumerWidget {
       ],
       supportedLocales:
           AppLocalizations.supportedLocales, // Added supportedLocales
-      // TODO: Add authentication state management
-      // For now, show auth screen. Later, check if user is logged in
-      home: const AuthScreen(),
+      home: authState.when(
+        skipLoadingOnReload: true,
+        data:
+            (user) => user != null ? const MainNavigator() : const AuthScreen(),
+        error: (error, stack) => const AuthScreen(),
+        loading:
+            () => const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryColor),
+              ),
+            ),
+      ),
       routes: {
         '/home': (context) => const MainNavigator(),
         '/auth': (context) => const AuthScreen(),
