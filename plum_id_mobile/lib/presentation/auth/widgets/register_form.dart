@@ -123,7 +123,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             controller: _usernameController,
             decoration: InputDecoration(
               labelText: 'Nom d\'utilisateur',
-              hintText: 'jeandupont',
+              hintText: 'toto34',
               prefixIcon: const Icon(Icons.person_outline),
               errorText: _fieldErrors['username'],
             ),
