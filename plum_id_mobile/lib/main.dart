@@ -9,6 +9,7 @@ import 'presentation/auth/notifiers/auth_notifier.dart';
 import 'presentation/auth/screens/auth_screen.dart';
 import 'presentation/widgets/main_navigator.dart';
 import 'presentation/providers/providers.dart';
+import 'presentation/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -24,14 +25,15 @@ void main() async {
         // Override the sharedPreferences provider with the pre-initialized instance
         sharedPreferencesProvider.overrideWith((ref) => sharedPreferences),
       ],
-      child: const PlumIDApp(),
+      child: PlumIDApp(prefs: sharedPreferences),
     ),
   );
 }
 
 class PlumIDApp extends ConsumerWidget {
-  // Changed to ConsumerWidget
-  const PlumIDApp({super.key});
+  final SharedPreferences prefs;
+
+  const PlumIDApp({super.key, required this.prefs});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,8 +57,14 @@ class PlumIDApp extends ConsumerWidget {
           AppLocalizations.supportedLocales, // Added supportedLocales
       home: authState.when(
         skipLoadingOnReload: true,
-        data:
-            (user) => user != null ? const MainNavigator() : const AuthScreen(),
+        data: (user) {
+          if (user != null) return const MainNavigator();
+          final hasSeenOnboarding =
+              prefs.getBool('has_seen_onboarding') ?? false;
+          return hasSeenOnboarding
+              ? const AuthScreen()
+              : const OnboardingScreen();
+        },
         error: (error, stack) => const AuthScreen(),
         loading:
             () => const Scaffold(
