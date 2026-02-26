@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plum_id_mobile/core/network/api_client.dart';
 import 'package:plum_id_mobile/data/models/user_profile_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -41,9 +41,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 }
 
 @riverpod
-Future<AuthRemoteDataSource> authRemoteDataSource(
-  AuthRemoteDataSourceRef ref,
-) async {
+Future<AuthRemoteDataSource> authRemoteDataSource(Ref ref) async {
   final apiClient = await ref.watch(apiClientProvider.future);
   return AuthRemoteDataSourceImpl(apiClient);
 }

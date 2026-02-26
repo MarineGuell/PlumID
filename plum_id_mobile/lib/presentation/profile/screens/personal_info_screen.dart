@@ -13,7 +13,7 @@ class PersonalInfoScreen extends ConsumerStatefulWidget {
 }
 
 class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
-  bool _isEditing = false;
+  final bool _isEditing = false;
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _usernameController;

@@ -15,10 +15,12 @@ Application mobile Flutter pour l'identification d'oiseaux à partir de photos d
 ## 🏗️ Architecture
 
 Le projet utilise une **approche hybride** optimale :
+
 - **Clean Architecture** pour les dépendances entre couches
 - **Feature-First** pour l'organisation de la Presentation layer
 
 Cette architecture garantit :
+
 - ✅ Code testable et maintenable
 - ✅ Séparation des responsabilités
 - ✅ Indépendance vis-à-vis des frameworks
@@ -34,7 +36,7 @@ Cette architecture garantit :
 
 ## 📁 Structure du projet
 
-```
+```md
 lib/
 ├── core/                 # Utilitaires transverses
 │   ├── constants/        # Constantes (API URL, configs)
@@ -135,7 +137,7 @@ flutter run -d <device_id>
 ## 📦 Dépendances principales
 
 | Package | Usage |
-|---------|-------|
+| --------- | ------- |
 | `flutter_riverpod` | State management |
 | `riverpod_annotation` | Code generation Riverpod |
 | `dartz` | Functional programming (Either) |
@@ -250,18 +252,21 @@ flutter build ios --release
 ### Problèmes courants
 
 **Erreur de génération de code :**
+
 ```bash
 dart run build_runner clean
 dart run build_runner build --delete-conflicting-outputs
 ```
 
 **Erreur de dépendances :**
+
 ```bash
 flutter pub cache clean
 flutter pub get
 ```
 
 **Erreur de build :**
+
 ```bash
 flutter clean
 flutter pub get
@@ -279,4 +284,4 @@ Ce projet est privé et destiné à un usage académique (YNOV - YDAYS).
 ---
 
 **Version** : 1.0.0  
-**Dernière mise à jour** : 19 novembre 2025
+**Dernière mise à jour** : 27 février 2026

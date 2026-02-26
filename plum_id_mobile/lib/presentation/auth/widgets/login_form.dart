@@ -129,7 +129,22 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               if (value == null || value.isEmpty) {
                 return 'Veuillez entrer votre mot de passe';
               }
-              // todo: Add more password validation
+              if (value.length < 8) {
+                return 'Le mot de passe doit contenir au moins 8 caractères';
+              }
+              if (!value.contains(RegExp(r'[A-Z]'))) {
+                return 'Le mot de passe doit contenir au moins une majuscule';
+              }
+              if (!value.contains(RegExp(r'[a-z]'))) {
+                return 'Le mot de passe doit contenir au moins une minuscule';
+              }
+              if (!value.contains(RegExp(r'[0-9]'))) {
+                return 'Le mot de passe doit contenir au moins un chiffre';
+              }
+              if (!value.contains(RegExp(r'[!@#$%^&*]'))) {
+                return 'Le mot de passe doit contenir au moins un caractère spécial';
+              }
+
               return null;
             },
           ),

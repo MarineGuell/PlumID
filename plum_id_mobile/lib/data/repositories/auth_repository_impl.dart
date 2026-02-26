@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plum_id_mobile/core/utils/token_storage.dart';
 import 'package:plum_id_mobile/data/datasources/auth_remote_data_source.dart';
 import 'package:plum_id_mobile/domain/entities/user_profile.dart';
@@ -42,7 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
 }
 
 @riverpod
-Future<AuthRepository> authRepository(AuthRepositoryRef ref) async {
+Future<AuthRepository> authRepository(Ref ref) async {
   final remoteDataSource = await ref.watch(authRemoteDataSourceProvider.future);
   final tokenStorage = await ref.watch(tokenStorageProvider.future);
   return AuthRepositoryImpl(remoteDataSource, tokenStorage);
