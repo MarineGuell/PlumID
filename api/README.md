@@ -12,10 +12,10 @@ Stack : **FastAPI**, **SQLAlchemy**, **MySQL** (ou SQLite en dev), **JWT** (comp
 
 1. [Prérequis](#prérequis)  
 2. [Configuration (.env)](#configuration-env)  
-3. [Installation & Lancement](#installation--lancement)  
+3. [Lancement avec Docker Compose](#lancement-avec-docker-compose)  
 4. [Authentification](#authentification)  
    * [API Key](#1-api-key-service-to-service)  
-   * [JWT + Vérification d’email](#2-jwt-comptes-utilisateurs--vérification-demail)  
+   * [JWT + Vérification d'email](#2-jwt-comptes-utilisateurs--vérification-demail)  
 5. [Endpoints](#endpoints)  
    * [Health](#health)  
    * [Species](#species)  
@@ -24,16 +24,16 @@ Stack : **FastAPI**, **SQLAlchemy**, **MySQL** (ou SQLite en dev), **JWT** (comp
    * [Auth Utilisateurs](#auth-utilisateurs)  
 6. [Modèles de données](#modèles-de-données)  
 7. [Conventions & Erreurs](#conventions--erreurs)  
-8. [Déploiement](#déploiement)  
-9. [Exemples `curl`](#exemples-curl)
+8. [Exemples `curl`](#exemples-curl)
 
 ---
 
 ## Prérequis
 
-* Python **3.10+**
-* MySQL **8+** (ou SQLite pour du local rapide)
-* `pip` / `uvicorn` / `virtualenv` (ou `poetry`)
+* **Docker** et **Docker Compose** (v2+)
+* Un fichier `.env` correctement rempli (voir section suivante)
+
+> Aucune installation locale de Python, MySQL ou uvicorn n'est nécessaire.
 
 ---
 
@@ -129,24 +129,59 @@ Le lien de vérification envoyé par email sera de la forme :
 
 ---
 
-## Installation & Lancement
+## Lancement avec Docker Compose
+
+Le `docker-compose.yaml` démarre deux services :
+
+| Service | Image / Build | Port exposé |
+| ------- | -------------- | ----------- |
+| `db` | `mysql:8.0` | `3306` |
+| `api` | `Dockerfile` local | `8000` |
+
+La base de données est alimentée par les variables d'environnement du `.env` et un volume nommé `db_data` assure la persistance des données.
+
+### Démarrage
 
 ```bash
-# 1) Créer un venv
-python -m venv .venv
-# Linux / macOS
-source .venv/bin/activate
-# Windows
-# .venv\Scripts\activate
-
-# 2) Installer les dépendances
-pip install -r requirements.txt
-
-# 3) Lancer l’API
-uvicorn api.main:app --reload --port 8000
+# Construire et démarrer tous les services en arrière-plan
+docker compose up -d --build
 ```
 
-L’API écoute par défaut sur `http://localhost:8000`.
+L'API écoute alors sur `http://localhost:8000`.  
+L'API attend que MySQL soit prêt (healthcheck) avant de démarrer.
+
+### Commandes utiles
+
+```bash
+# Voir les logs en temps réel
+docker compose logs -f
+
+# Logs d'un seul service
+docker compose logs -f api
+
+# Arrêter les services
+docker compose down
+
+# Arrêter ET supprimer les volumes (reset BDD)
+docker compose down -v
+```
+
+### Variables Docker Compose
+
+Le `docker-compose.yaml` lit ton `.env` et surcharge automatiquement `DATABASE_URL` pour pointer vers le service `db` interne :
+
+```env
+DATABASE_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}?charset=utf8mb4
+```
+
+Tu peux personnaliser le compte MySQL via ces variables dans ton `.env` :
+
+```env
+MYSQL_ROOT_PASSWORD=rootpassword
+MYSQL_DATABASE=plumid
+MYSQL_USER=plumid
+MYSQL_PASSWORD=plumid_password
+```
 
 ---
 
