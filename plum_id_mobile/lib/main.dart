@@ -9,7 +9,6 @@ import 'presentation/auth/notifiers/auth_notifier.dart';
 import 'presentation/auth/screens/auth_screen.dart';
 import 'presentation/widgets/main_navigator.dart';
 import 'presentation/providers/providers.dart';
-import 'presentation/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -59,11 +58,12 @@ class PlumIDApp extends ConsumerWidget {
         skipLoadingOnReload: true,
         data: (user) {
           if (user != null) return const MainNavigator();
-          final hasSeenOnboarding =
-              prefs.getBool('has_seen_onboarding') ?? false;
-          return hasSeenOnboarding
-              ? const AuthScreen()
-              : const OnboardingScreen();
+          return const AuthScreen();
+          // final hasSeenOnboarding =
+          //     prefs.getBool('has_seen_onboarding') ?? false;
+          // return hasSeenOnboarding
+          //     ? const AuthScreen()
+          //     : const OnboardingScreen();
         },
         error: (error, stack) => const AuthScreen(),
         loading:
