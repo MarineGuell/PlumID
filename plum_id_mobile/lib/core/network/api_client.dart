@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:plum_id_mobile/core/utils/token_storage.dart';
 
@@ -14,7 +15,7 @@ class ApiClient {
 }
 
 @riverpod
-Future<ApiClient> apiClient(ApiClientRef ref) async {
+Future<ApiClient> apiClient(Ref ref) async {
   final tokenStorage = await ref.watch(tokenStorageProvider.future);
 
   // Use 10.0.2.2 for Android emulator to access localhost, or IP for physical device

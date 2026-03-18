@@ -1,9 +1,9 @@
 from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from api.db import get_db
-from api.models.pictures import Pictures
-from api.schemas.pictures import PicturesCreate, PicturesOut
+from db import get_db
+from models.pictures import Pictures
+from schemas.pictures import PicturesCreate, PicturesOut
 
 router = APIRouter(prefix="/pictures", tags=["pictures"])
 

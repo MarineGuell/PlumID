@@ -8,23 +8,23 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from api.core.security import (
+from core.security import (
     create_access_token,
     create_email_verification_token,
     create_password_reset_token,
     decode_access_token,
 )
-from api.crud.users import (
+from crud.users import (
     authenticate_user,
     create_user,
     get_user_by_mail,
     get_user_by_id,
     update_user_password,
 )
-from api.db import get_db
-from api.dependencies.auth import get_current_user
-from api.models.users import Users
-from api.schemas.users import (
+from db import get_db
+from dependencies.auth import get_current_user
+from models.users import Users
+from schemas.users import (
     UserCreate,
     UserLogin,
     UserOut,
@@ -33,8 +33,8 @@ from api.schemas.users import (
     PasswordResetConfirm,
     ResendVerificationRequest,
 )
-from api.services.email import send_verification_email, send_password_reset_email
-from api.settings import settings
+from services.email import send_verification_email, send_password_reset_email
+from settings import settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

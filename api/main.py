@@ -10,21 +10,21 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .settings import settings
-from .middlewares.tracing import install_tracing
-from .middlewares.body_limit import BodySizeLimitMiddleware
-from .middlewares.rate_limit import RateLimitMiddleware
-from .security.antireplay import require_signed_request
+from settings import settings
+from middlewares.tracing import install_tracing
+from middlewares.body_limit import BodySizeLimitMiddleware
+from middlewares.rate_limit import RateLimitMiddleware
+from security.antireplay import require_signed_request
 
-from .db import engine
-from .models import Base
+from db import engine
+from models import Base
 
 # Routers
-from .routes.health import router as health_router
-from .routes.species import router as species_router
-from .routes.feathers import router as feathers_router
-from .routes.pictures import router as pictures_router
-from .routes.auth import router as auth_router
+from routes.health import router as health_router
+from routes.species import router as species_router
+from routes.feathers import router as feathers_router
+from routes.pictures import router as pictures_router
+from routes.auth import router as auth_router
 
 log = logging.getLogger("uvicorn")
 

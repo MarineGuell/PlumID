@@ -1,7 +1,7 @@
 # api/middlewares/auth.py
 from __future__ import annotations
 from fastapi import Header, HTTPException
-from api.settings import settings
+from settings import settings
 
 def require_api_key(authorization: str = Header(default="")) -> None:
     """

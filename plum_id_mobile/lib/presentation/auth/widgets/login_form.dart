@@ -181,7 +181,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           ElevatedButton(
             onPressed: isLoading ? null : _handleLogin,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.secondaryColor,
+              backgroundColor: AppTheme.accentColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

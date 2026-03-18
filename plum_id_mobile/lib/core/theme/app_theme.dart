@@ -5,7 +5,8 @@ class AppTheme {
   // Colors - PlumID Design System
   static const Color primaryColor = Color(0xFF2C5252); // Dark teal background
   static const Color secondaryColor = Color(0xFF7CADA0); // Light teal accent
-  static const Color accentColor = Color(0xFFE48B6C); // Orange for logo
+  static const Color tertiaryColor = Color.fromARGB(255, 114, 70, 116); // Soft mint accent
+  static const Color accentColor = Color.fromARGB(255, 128, 45, 93); // Vibrant pink accent
   static const Color backgroundColor = Color(0xFF2C5252);
   static const Color surfaceColor = Colors.white;
   static const Color errorColor = Color(0xFFD32F2F);
