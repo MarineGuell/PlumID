@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:plum_id_mobile/core/utils/token_storage.dart';
@@ -18,7 +19,7 @@ Future<ApiClient> apiClient(ApiClientRef ref) async {
 
   // Use 10.0.2.2 for Android emulator to access localhost, or IP for physical device
   // Update this URL to match your server environment
-  const baseUrl = 'http://localhost:8000';
+  final baseUrl = Platform.isAndroid ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
 
   final dio = Dio(
     BaseOptions(
