@@ -80,7 +80,7 @@ La structure de la base repose sur un **Modèle Conceptuel de Données (MCD)** c
 
 Ces entités sont reliées entre elles afin de garantir la cohérence des données et faciliter leur exploitation par l'application et les futurs modèles IA.
 
-![MCD Plum'ID](docs/mcd.png)
+![MCD Plum'ID](docs/image_MCD.png)
 
 > 💡 **Remarque :** placer le fichier image de votre MCD dans le dossier `docs/` à la racine du dépôt, sous le nom `mcd.png` (ou adapter le chemin ci-dessus en conséquence).
 
