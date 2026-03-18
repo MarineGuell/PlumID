@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 from jose import JWTError, jwt
 import bcrypt
-from api.settings import settings
+from settings import settings
 
 ALGORITHM = "HS256"
 

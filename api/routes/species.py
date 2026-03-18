@@ -1,9 +1,9 @@
 from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from api.db import get_db
-from api.models.species import Species
-from api.schemas.species import SpeciesCreate, SpeciesOut
+from db import get_db
+from models.species import Species
+from schemas.species import SpeciesCreate, SpeciesOut
 
 router = APIRouter(prefix="/species", tags=["species"])
 

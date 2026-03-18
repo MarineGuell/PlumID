@@ -8,10 +8,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from sqlalchemy.orm import Session
 
-from api.core.security import decode_access_token
-from api.crud.users import get_user_by_id
-from api.db import get_db
-from api.models.users import Users
+from core.security import decode_access_token
+from crud.users import get_user_by_id
+from db import get_db
+from models.users import Users
 
 # Utilisé pour documenter l'auth dans OpenAPI (Swagger)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")

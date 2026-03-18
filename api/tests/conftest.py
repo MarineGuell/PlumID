@@ -4,9 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
-from api.main import app
-from api.db import get_db
-from api.models.base import Base
+from main import app
+from db import get_db
+from models.base import Base
 
 # Setup the in-memory SQLite database for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"

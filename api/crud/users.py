@@ -5,8 +5,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from api.core.security import hash_password, verify_password
-from api.models.users import Users
+from core.security import hash_password, verify_password
+from models.users import Users
 
 
 def get_user_by_id(db: Session, user_id: int) -> Optional[Users]:

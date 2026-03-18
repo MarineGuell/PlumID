@@ -1,6 +1,6 @@
 # api/tests/crud/test_users.py
-from api.crud.users import create_user, get_user_by_mail, get_user_by_id, authenticate_user, update_user_password
-from api.models.users import Users
+from crud.users import create_user, get_user_by_mail, get_user_by_id, authenticate_user, update_user_password
+from models.users import Users
 from sqlalchemy.orm import Session
 import pytest
 

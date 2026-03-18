@@ -5,7 +5,7 @@
 		"docker-compose.extend.yaml"
 	],
 	"service": "api",
-	"workspaceFolder": "/app/api",
+	"workspaceFolder": "/app",
 	"customizations": {
 		"vscode": {
 			"extensions": [
