@@ -11,9 +11,8 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 ## 🎯 Objectifs
 
-- 🧠 Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume.  
-- 🗺️ Utiliser les **données GPS et temporelles** pour pondérer les prédictions selon la zone géographique et la saison.  
-- 💡 Développer une **interface intuitive** adaptée à un large public (web ou mobile).  
+- 🧠 Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume. 
+- 💡 Développer une **interface mobile intuitive** adaptée à un large public.  
 - 🌱 Sensibiliser à la **préservation de la biodiversité** et faciliter les travaux des **chercheurs en ornithologie**.
 
 ---
@@ -22,18 +21,18 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 | Nom | Rôle / spécialité |
 |------|-------------------|
-| **Marine Guell** | Coordination & design |
-| **Paul Berdier** | Data Science & IA |
-| **Louis** | Backend / API |
-| **Théo** | Frontend |
-| **Yann** | Infrastructure & DevOps |
-| **Fabien** | IA / Entraînement du modèle |
-| **Anass** | Collecte & annotation des données |
-| **Marc Ezechiel** | UX / UI |
-| **Amdjad** | Géolocalisation & intégration |
-| **Laura** | Communication & documentation |
-| **Loïc** | Base de données & structure |
-| **Mathis** | Tests & qualité |
+| **Marine Guell** | Coordination & expertise métier |
+| **Paul Berdier** | Backend / API - Infrastructure & DevOps |
+| **Louis** | Base de données & structure - Collecte & annotation des données |
+| **Théo** | IA / Entraînement du modèle - Collecte & annotation des données |
+| **Yann** | Data science / IA / Entraînement du modèle |
+| **Fabien** | Communication |
+| **Anass** |  Base de données & structure - Collecte & annotation des données |
+| **Marc Ezechiel** | IA / Entraînement du modèle |
+| **Amdjad** | Frontend |
+| **Laura** | Frontend |
+| **Loïc** | Frontend |
+| **Mathis** | Frontend |
 
 ---
 
@@ -42,12 +41,9 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 | Fonctionnalité | Description |
 |----------------|-------------|
 | 📷 **Reconnaissance d’image** | Identification d’espèces à partir d’une photo de plume |
-| 🧭 **Localisation GPS** | Pondération selon la région et la saison |
-| 🕓 **Filtrage temporel** | Prédictions ajustées selon la période d’observation |
 | 📊 **Probabilités d’espèces** | Classement des résultats avec taux de confiance |
 | 📚 **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
 | 💾 **Historique utilisateur** | Enregistrement des observations |
-| 🌐 **Mode hors-ligne (optionnel)** | Reconnaissance sans connexion Internet |
 
 ---
 
