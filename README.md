@@ -1,348 +1,159 @@
-# Plum'ID — Identification d’espèces d’oiseaux à partir d’une plume
+# Image Dataset Preprocessing & Augmentation Pipeline
 
-## 🌍 Présentation du projet
+Pipeline Python pour préparer et augmenter un dataset d'images destiné à l'entraînement de modèles de Deep Learning.
 
-**Plum'ID** est une application de reconnaissance d’image permettant d’identifier une **espèce d’oiseau à partir d’une photo de plume**.
+## Fonctionnalités
 
-Le projet combine **vision par ordinateur** et **analyse contextuelle** (géographique et temporelle) pour améliorer la précision des prédictions.  
-Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — promeneurs, naturalistes, enseignants, écologues — à découvrir les oiseaux qui les entourent et à mieux comprendre la biodiversité.
+Le projet se compose de deux étapes enchaînées automatiquement :
 
----
+### Étape 1 — Prétraitement des images (Data Preprocessing)
 
-## 🎯 Objectifs
+| Opération | Description |
+|---|---|
+| **Segmentation (SAM)** | Détection et extraction automatique des objets via le modèle SAM (Segment Anything Model) |
+| **Débruitage** | Suppression du bruit avec `cv2.fastNlMeansDenoisingColored` |
+| **Amélioration du contraste** | Égalisation adaptative (CLAHE) sur le canal L en espace LAB |
+| **Netteté (Sharpening)** | Filtre de netteté par convolution |
+| **Padding & Redimensionnement** | Mise à l'échelle carrée (224×224) avec fond noir |
 
-- 🧠 Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume. 
-- 💡 Développer une **interface mobile intuitive** adaptée à un large public.  
-- 🌱 Sensibiliser à la **préservation de la biodiversité** et faciliter les travaux des **chercheurs en ornithologie**.
+### Étape 2 — Augmentation des données (Data Augmentation)
 
----
+Génération d'images augmentées à partir des images prétraitées :
 
-## 👥 Équipe projet
+- **Rotation** aléatoire (probabilité : 50 %, ±25°)
+- **Flou** (probabilité : 10 %)
+- **Bruit aléatoire** (probabilité : 50 %)
+- **Flip horizontal** (probabilité : 30 %)
+- **Flip vertical** (optionnel)
 
-| Nom | Rôle / spécialité |
-|------|-------------------|
-| **Marine Guell** | Coordination & expertise métier |
-| **Paul Berdier** | Backend / API - Infrastructure & DevOps |
-| **Louis** | Base de données & structure - Collecte & annotation des données |
-| **Théo** | IA / Entraînement du modèle - Collecte & annotation des données |
-| **Yann** | Data science / IA / Entraînement du modèle |
-| **Fabien** | Communication |
-| **Anass** |  Base de données & structure - Collecte & annotation des données |
-| **Marc Ezechiel** | IA / Entraînement du modèle |
-| **Amdjad** | Frontend |
-| **Laura** | Frontend |
-| **Loïc** | Frontend |
-| **Mathis** | Frontend |
+Les probabilités et opérations sont configurables dans `augmentation_config.py`.
 
----
+## Prérequis
 
-## 🧩 Fonctionnalités principales (prévisionnelles)
+- Python 3.8+
+- GPU compatible CUDA (recommandé pour SAM)
+- Poids du modèle SAM (`sam3.pt` par défaut)
 
-| Fonctionnalité | Description |
-|----------------|-------------|
-| 📷 **Reconnaissance d’image** | Identification d’espèces à partir d’une photo de plume |
-| 📊 **Probabilités d’espèces** | Classement des résultats avec taux de confiance |
-| 📚 **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
-| 💾 **Historique utilisateur** | Enregistrement des observations |
-
----
-
-## 🗂️ Architecture générale
-
-À terme, le projet Plum’ID sera composé de plusieurs briques :
-
-- **API Plum’ID** (FastAPI, Python)  
-- **Modèle IA de reconnaissance** (service dédié, HTTP/gRPC)  
-- **Front Web / Application** (SPA ou mobile)  
-- **Base de données** (MySQL)  
-- (Optionnel) **Storage objet** pour les images (S3 / MinIO)
-
-Dans ce dépôt, la première brique mise en place est l’**API Plum’ID** (dossier `api/`), déjà prête pour :
-
-- la gestion des **utilisateurs** (auth, JWT, vérification d’email, reset mot de passe),
-- la gestion des **espèces**, **plumes** et **photos**,
-- une exposition en **Docker** et en **Kubernetes**.
-
----
-
-## 🧱 Structure du dépôt (backend API)
-
-```text
-projet/
-  api/
-    Dockerfile
-    .dockerignore
-    requirements.txt
-    __init__.py
-    main.py
-    db.py
-    settings.py
-    core/
-      security.py
-    models/
-      base.py
-      users.py
-      species.py
-      feathers.py
-      pictures.py
-    routes/
-      auth.py
-      health.py
-      species.py
-      feathers.py
-      pictures.py
-    services/
-      email.py
-    schemas/
-      users.py
-      ...
-  k8s/
-    namespace.yaml
-    api-configmap.yaml
-    api-secret.yaml
-    api-deployment.yaml
-    api-service.yaml
-    api-ingress.yaml
-````
-
----
-
-## ⚙️ Configuration (Backend API)
-
-L’API lit sa configuration via des **variables d’environnement** (gérées par `api/settings.py`).
-
-Principaux paramètres :
-
-* **Base de données**
-
-  * `DATABASE_URL` (recommandé)
-    Exemple :
-    `mysql+pymysql://plumid:password@localhost:3306/plumid?charset=utf8mb4`
-
-* **Auth & JWT**
-
-  * `AUTH_SECRET` : secret pour signer les JWT
-  * `ACCESS_TOKEN_EXPIRE_MINUTES` : durée de vie des tokens
-
-* **API Key service-to-service**
-
-  * `PLUMID_API_KEY`
-
-* **CORS**
-
-  * `CORS_ALLOW_ORIGINS` : CSV d’origines autorisées
-    ex : `http://localhost:3000,https://plumid.example.com`
-
-* **SMTP (vérification email + reset password)**
-
-  * `SMTP_HOST`, `SMTP_PORT`
-  * `SMTP_USER`, `SMTP_PASSWORD`
-  * `SMTP_FROM`
-
----
-
-## 🚀 Lancement local (sans Docker)
-
-Depuis le dossier `api/` :
+## Installation
 
 ```bash
-# 1) Créer un env Python
-python -m venv .venv
-# Linux / macOS
-source .venv/bin/activate
-# Windows
-# .venv\Scripts\activate
-
-# 2) Installer les dépendances
+git clone <repo-url>
+cd py-image-dataset-generator
 pip install -r requirements.txt
-
-# 3) Exporter les variables d'environnement (ou .env)
-export DATABASE_URL="mysql+pymysql://plumid:password@localhost:3306/plumid?charset=utf8mb4"
-export AUTH_SECRET="change_me"
-export PLUMID_API_KEY="super_token"
-
-# 4) Lancer l’API
-uvicorn api.main:app --reload --port 8000
 ```
 
-L’API est alors disponible sur :
-👉 `http://localhost:8000`
-Docs interactives :
-👉 `http://localhost:8000/docs`
+## Utilisation
 
----
-
-## 🐳 Utilisation avec Docker
-
-### 1. Image Docker de l’API
-
-Le dossier `api/` contient un `Dockerfile` optimisé pour la prod :
-
-```dockerfile
-# api/Dockerfile
-FROM python:3.11-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libssl-dev \
-    libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt ./requirements.txt
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-COPY . /app/api
-
-RUN useradd -m appuser && chown -R appuser:appuser /app
-USER appuser
-
-EXPOSE 8000
-
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-Build de l’image depuis la racine du projet :
+### Pipeline complète (preprocessing + augmentation)
 
 ```bash
-docker build -t plumid-api ./api
+python pipeline.py -input=path/to/raw/images -output=path/to/augmented -limit=500
 ```
 
-Lancer l’API en container :
+### Paramètres
+
+| Paramètre | Description |
+|---|---|
+| `-input`, `-i` **(requis)** | Dossier contenant les images brutes |
+| `-output`, `-o` | Dossier de destination pour les images augmentées (défaut : `output`) |
+| `-limit`, `-l` | Nombre d'images augmentées à générer (défaut : 500) |
+| `-sam_weights` | Chemin vers les poids SAM (défaut : `sam3.pt`) |
+| `--skip-preprocessing` | Sauter le prétraitement et lancer uniquement l'augmentation |
+| `--preprocess-only` | Lancer uniquement le prétraitement (pas d'augmentation) |
+
+### Exemples
+
+**Pipeline complète :**
+```bash
+python pipeline.py -input=mes_images -output=dataset_augmente -limit=1000
+```
+
+**Prétraitement seul :**
+```bash
+python pipeline.py -input=mes_images --preprocess-only
+```
+
+**Augmentation seule** (sur des images déjà prétraitées) :
+```bash
+python pipeline.py -input=data_preprocessing/preprocessed/padding --skip-preprocessing -output=dataset_augmente -limit=2000
+```
+
+### Augmentation seule (mode standalone)
 
 ```bash
-docker run --rm -p 8000:8000 \
-  -e DATABASE_URL="mysql+pymysql://plumid:password@host.docker.internal:3306/plumid?charset=utf8mb4" \
-  -e AUTH_SECRET="change_me_in_prod" \
-  -e PLUMID_API_KEY="super_token" \
-  plumid-api
+python augmentation.py -folder=mon_dossier -limit=10000 -dest=dossier_sortie
 ```
 
-### 2. Stack locale avec Docker Compose (API + MySQL)
+### Pipeline personnalisée en Python
 
-Exemple de `docker-compose.yml` minimal (à la racine du projet) :
+```python
+from augmentation.augmentation import DatasetGenerator
 
-```yaml
-version: "3.9"
-
-services:
-  db:
-    image: mysql:8.0
-    container_name: plumid-db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: plumid
-      MYSQL_USER: plumid
-      MYSQL_PASSWORD: plumid_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-
-  api:
-    build:
-      context: ./api
-    container_name: plumid-api
-    restart: unless-stopped
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: "mysql+pymysql://plumid:plumid_password@db:3306/plumid?charset=utf8mb4"
-      AUTH_SECRET: "change_me_in_prod"
-      PLUMID_API_KEY: "super_token"
-      CORS_ALLOW_ORIGINS: "http://localhost:3000"
-    ports:
-      - "8000:8000"
-
-volumes:
-  db_data:
+pipeline = DatasetGenerator(
+    folder_path="images/preprocessed/",
+    num_files=5000,
+    save_to_disk=True,
+    folder_destination="images/results"
+)
+pipeline.rotate(probability=0.5, max_left_degree=25, max_right_degree=25)
+pipeline.random_noise(probability=0.5)
+pipeline.blur(probability=0.5)
+pipeline.horizontal_flip(probability=0.2)
+pipeline.execute()
 ```
 
-Lancement :
+## Structure du projet
 
-```bash
-docker compose up --build
+```
+├── pipeline.py                  # Point d'entrée principal (preprocessing → augmentation)
+├── augmentation.py              # Point d'entrée standalone pour l'augmentation
+├── augmentation_config.py       # Configuration des opérations d'augmentation
+├── requirements.txt             # Dépendances Python
+├── augmentation/
+│   ├── augmentation.py          # Classe DatasetGenerator
+│   └── operations.py            # Opérations d'augmentation (Rotate, Blur, Flip, etc.)
+├── data_preprocessing/
+│   ├── datapreprocessing.py     # Pipeline de prétraitement (segmentation → padding)
+│   └── preprocessed/            # Sorties intermédiaires du prétraitement
+│       ├── segmentation/
+│       ├── denoise/
+│       ├── contrast/
+│       ├── sharpened/
+│       └── padding/
+├── utils/
+│   └── utils.py                 # Utilitaires (fichiers, barre de progression)
+└── tests/
+    └── utils/
+        └── test_string_utils.py
 ```
 
-* API : `http://localhost:8000`
-* MySQL : `localhost:3306` (user `plumid`, password `plumid_password`)
+## Configuration
 
-Plus tard, d’autres services (front web, modèle IA) pourront être ajoutés au `docker-compose.yml`.
+Modifiez `augmentation_config.py` pour ajuster les opérations d'augmentation :
 
----
+```python
+DEFAULT_OPERATIONS = [
+    'rotate',
+    'blur',
+    'random_noise',
+    'horizontal_flip',
+    # 'vertical_flip'
+]
 
-## ☸️ Déploiement sur Kubernetes (API)
-
-Pour une infra plus “prod” (multi-services, HA, scaling), Plum’ID est pensé pour tourner sur Kubernetes.
-
-### 1. Pré-requis
-
-* Cluster Kubernetes (K3s, k8s managé, Minikube…)
-* Ingress Controller (ex : Nginx Ingress)
-* Un registry Docker accessible par le cluster (GitHub Container Registry, Harbor, etc.)
-
-### 2. Build & push de l’image
-
-```bash
-# Exemple avec un registry custom
-docker build -t registry.example.com/plumid-api:latest ./api
-docker push registry.example.com/plumid-api:latest
+DEFAULT_ROTATE_PROBABILITY = 0.5
+DEFAULT_ROTATE_MAX_LEFT_DEGREE = 25
+DEFAULT_ROTATE_MAX_RIGHT_DEGREE = 25
+DEFAULT_BLUR_PROBABILITY = 0.1
+DEFAULT_RANDOM_NOISE_PROBABILITY = 0.5
+DEFAULT_HORIZONTAL_FLIP_PROBABILITY = 0.3
+DEFAULT_VERTICAL_FLIP_PROBABILITY = 0.3
 ```
 
-Mettre à jour l’image dans `k8s/api-deployment.yaml` :
+## Dépendances
 
-```yaml
-image: registry.example.com/plumid-api:latest
-```
-
-### 3. Manifests Kubernetes
-
-Les manifests se trouvent dans `k8s/` :
-
-* `namespace.yaml` : namespace dédié `plumid`
-* `api-configmap.yaml` : config non sensible (CORS, FRONTEND_BASE_URL, log…)
-* `api-secret.yaml` : secrets (DATABASE_URL, AUTH_SECRET, SMTP_USER/PASSWORD…)
-* `api-deployment.yaml` : déploiement de l’API (2 replicas, probes)
-* `api-service.yaml` : Service de type ClusterIP (`plumid-api`)
-* `api-ingress.yaml` : Ingress (ex : `api.plumid.example.com`)
-
-Application des manifests :
-
-```bash
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/api-configmap.yaml
-kubectl apply -f k8s/api-secret.yaml
-kubectl apply -f k8s/api-deployment.yaml
-kubectl apply -f k8s/api-service.yaml
-kubectl apply -f k8s/api-ingress.yaml
-```
-
-Vérification :
-
-```bash
-kubectl -n plumid get pods
-kubectl -n plumid get svc
-kubectl -n plumid get ingress
-```
-
-Une fois l’Ingress résolu (DNS ou /etc/hosts), l’API est accessible sur :
-
-```text
-https://api.plumid.example.com
-```
-
----
-
-## 🔭 Roadmap technique
-
-* [ ] Intégration du **service modèle IA** (service `plumid-ml` dédié, HTTP/gRPC)
-* [ ] Ajout du **frontend web** (`plumid-web`) dans Docker & Kubernetes
-* [ ] Mise en place d’un **worker async** (pré-traitement images, batch IA)
-* [ ] Migrations DB avec **Alembic**
-* [ ] Monitoring & observabilité (Prometheus, Grafana, logs centralisés)
+- `scipy` — Calcul scientifique
+- `scikit-image` — Traitement d'images (IO, transformations)
+- `opencv-python` — Vision par ordinateur (débruitage, contours, etc.)
+- `numpy` — Manipulation de tableaux
+- `Pillow` — Manipulation d'images (padding, resize)
+- `ultralytics` — Modèle SAM pour la segmentation
