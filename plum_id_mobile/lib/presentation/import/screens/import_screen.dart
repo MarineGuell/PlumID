@@ -1,22 +1,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:plum_id_mobile/core/theme/app_theme.dart';
-import 'package:plum_id_mobile/presentation/import/widgets/image_picker_bottom_sheet.dart';
 import 'package:plum_id_mobile/presentation/widgets/info_card.dart';
 
 class ImportScreen extends StatefulWidget {
-  const ImportScreen({super.key});
+  final File selectedImage;
+
+  const ImportScreen({super.key, required this.selectedImage});
 
   @override
   State<ImportScreen> createState() => _ImportScreenState();
 }
 
 class _ImportScreenState extends State<ImportScreen> with SingleTickerProviderStateMixin {
-  File? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
-
   late AnimationController _animationController;
   late Animation<double> _glowAnimation;
 
@@ -39,63 +35,7 @@ class _ImportScreenState extends State<ImportScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: source);
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
-      }
-    } catch (e) {
-      _showError('Erreur lors de la sélection : $e');
-    }
-  }
-
-  Future<void> _pickFile() async {
-    try {
-      // On utilise FileType.custom pour forcer l'ouverture de l'explorateur de fichiers natif (Files)
-      // plutôt que la galerie photo (ce que FileType.image fait par défaut sur certains OS).
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
-      );
-      if (result != null && result.files.single.path != null) {
-        setState(() {
-          _selectedImage = File(result.files.single.path!);
-        });
-      }
-    } catch (e) {
-      _showError('Erreur lors de la sélection : $e');
-    }
-  }
-
-  void _showError(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    }
-  }
-
-  void _showPickerOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext ctx) {
-        return ImagePickerBottomSheet(
-          onPickImage: _pickImage,
-          onPickFile: _pickFile,
-        );
-      },
-    );
-  }
-
   void _uploadImage() {
-    if (_selectedImage == null) return;
-
     // TODO: Connect this to the API for identification
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -116,7 +56,7 @@ class _ImportScreenState extends State<ImportScreen> with SingleTickerProviderSt
         backgroundColor: AppTheme.primaryColor,
         elevation: 0,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -138,12 +78,10 @@ class _ImportScreenState extends State<ImportScreen> with SingleTickerProviderSt
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(16),
-                    image: _selectedImage != null
-                        ? DecorationImage(
-                            image: FileImage(_selectedImage!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+                    image: DecorationImage(
+                      image: FileImage(widget.selectedImage),
+                      fit: BoxFit.cover,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
@@ -152,22 +90,12 @@ class _ImportScreenState extends State<ImportScreen> with SingleTickerProviderSt
                       ),
                     ],
                   ),
-                  child: _selectedImage == null
-                      ? const Center(
-                          child: Icon(
-                            Icons.insert_photo_outlined,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                        )
-                      : null,
                 ),
 
                 const SizedBox(height: 10),
 
-                // Upload button (visible only when an image is selected)
-                if (_selectedImage != null)
-                  AnimatedBuilder(
+                // Upload button
+                AnimatedBuilder(
                     animation: _glowAnimation,
                     builder: (context, child) {
                       return SizedBox(
@@ -212,13 +140,6 @@ class _ImportScreenState extends State<ImportScreen> with SingleTickerProviderSt
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showPickerOptions(context),
-        label: const Text('Importer une photo'),
-        icon: const Icon(Icons.add_photo_alternate),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
       ),
     );
   }

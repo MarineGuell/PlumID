@@ -25,8 +25,8 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: AppConstants.largeSpacing),
 
-              // Camera button
-              const HomeCameraButton(),
+              // Action buttons
+              const HomeActionButtons(),
 
               const SizedBox(height: AppConstants.largeSpacing),
 
