@@ -1,5 +1,9 @@
 # Plum'ID — Identification d’espèces d’oiseaux à partir d’une plume
 
+- [Lien vers le projet API](https://github.com/MarineGuell/plumid-api)
+- [Lien vers le projet modèle IA](https://github.com/MarineGuell/plumid-model)
+- [Lien vers le projet de l'application mobile](https://github.com/MarineGuell/plumid-mobile)
+
 ## 🌍 Présentation du projet
 
 **Plum'ID** est une application de reconnaissance d’image permettant d’identifier une **espèce d’oiseau à partir d’une photo de plume**.
