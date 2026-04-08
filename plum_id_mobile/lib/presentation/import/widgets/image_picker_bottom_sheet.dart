@@ -39,14 +39,6 @@ class ImagePickerBottomSheet extends StatelessWidget {
               onPickFile();
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Prendre une photo'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onPickImage(ImageSource.camera);
-            },
-          ),
           const SizedBox(height: 20),
         ],
       ),
