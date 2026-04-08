@@ -8,8 +8,6 @@ from sqlalchemy import (
     DateTime,
     func,
     Boolean,
-    ForeignKey,
-    Index,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
@@ -35,17 +33,6 @@ class Users(Base):
     )
     username = Column(String(100))
 
-    pictures_idpictures = Column(
-        Integer,
-        ForeignKey(
-            "pictures.idpictures",
-            ondelete="SET NULL",
-            onupdate="CASCADE",
-        ),
-        nullable=True,
-        index=True,
-    )
-
     is_active = Column(
         Boolean,
         nullable=False,
@@ -62,9 +49,8 @@ class Users(Base):
     )
 
     # Relations
-    picture = relationship("Pictures", lazy="joined")
+    pictures = relationship("Pictures", back_populates="user", lazy="select")
 
     __table_args__ = (
         UniqueConstraint("mail", name="uniq_users_mail"),
-        Index("idx_users_pictures", "pictures_idpictures"),
     )

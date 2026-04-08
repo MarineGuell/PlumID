@@ -12,6 +12,7 @@ class PicturesBase(BaseModel):
     latitude: str | None = None
     date_collected: date | None = None
     feathers_idfeathers: int | None = None
+    users_idusers: int | None = None
 
 
 class PicturesCreate(PicturesBase):

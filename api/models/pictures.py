@@ -21,5 +21,9 @@ class Pictures(Base):
         "feathers.idfeathers", ondelete="CASCADE", onupdate="CASCADE"), index=True)
     feathers = relationship("Feathers", backref="pictures", lazy="joined")
 
+    users_idusers = Column(Integer, ForeignKey(
+        "users.idusers", ondelete="CASCADE", onupdate="CASCADE"), nullable=True, index=True)
+    user = relationship("Users", back_populates="pictures", lazy="joined")
+
 
 Index("idx_pictures_feathers", Pictures.feathers_idfeathers)
