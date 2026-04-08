@@ -1,9 +1,10 @@
 import csv
+import os
+
+import cv2 as cv
+import numpy as np
 from PIL import Image
 from ultralytics import SAM
-import numpy as np
-import cv2 as cv
-import os
 
 # Base directory for preprocessed outputs (relative to project root)
 _BASE_DIR = os.path.join(os.path.dirname(__file__), "preprocessed")
@@ -147,7 +148,6 @@ def analyze_feather_texture(cropped_bgr):
     5. Dense regular edges       -> printed tick-marks / ruler text
     6. Skin colour via YCrCb     -> hands and fingers
     7. Near-white blank surface  -> white paper / labels / cards
-       (uses global mean V + mean S so isolated dots cannot rescue a white strip)
     """
     scores = {}
 
@@ -165,7 +165,7 @@ def analyze_feather_texture(cropped_bgr):
     mean_sat = float(s_ch.mean())
     mean_val = float(v_ch.mean())
 
-    # 1. Saturation — vivid synthetic colour
+    # 1. Saturation
     if mean_sat > 120:
         scores['sat_penalty'] = -40
     elif mean_sat > 80:
@@ -173,7 +173,7 @@ def analyze_feather_texture(cropped_bgr):
     else:
         scores['sat_penalty'] = 0
 
-    # 2. Hue uniformity — painted surface
+    # 2. Hue uniformity
     hue_std = float(h_ch.std())
     if hue_std < 5 and mean_sat > 60:
         scores['hue_uniformity_penalty'] = -30
@@ -182,7 +182,7 @@ def analyze_feather_texture(cropped_bgr):
     else:
         scores['hue_uniformity_penalty'] = 0
 
-    # 3. Brightness flatness — blank surface
+    # 3. Brightness flatness
     val_std = float(v_ch.std())
     if val_std < 15:
         scores['brightness_penalty'] = -20
@@ -191,9 +191,7 @@ def analyze_feather_texture(cropped_bgr):
     else:
         scores['brightness_penalty'] = 0
 
-    # 4. Laplacian variance — smooth surface
-    # Computed on masked pixels only so isolated dark dots cannot rescue a
-    # white strip by spiking the local Laplacian.
+    # 4. Laplacian variance (masked pixels only)
     lap = cv.Laplacian(gray, cv.CV_64F)
     lap_var = float(lap[mask_px].var())
     if lap_var < 50:
@@ -203,7 +201,7 @@ def analyze_feather_texture(cropped_bgr):
     else:
         scores['smoothness_penalty'] = 0
 
-    # 5. Edge density — printed markings / ruler ticks
+    # 5. Edge density
     edges = cv.Canny(gray, 50, 150)
     edge_density = float(edges[mask_px].mean())
     if edge_density > 30:
@@ -213,27 +211,21 @@ def analyze_feather_texture(cropped_bgr):
     else:
         scores['edge_density_penalty'] = 0
 
-    # 6. SKIN COLOUR DETECTOR
-    # YCrCb is the standard space for skin segmentation.
-    # Typical skin ranges (covers light to dark skin tones):
-    #   Cr: 133-173, Cb: 77-127
+    # 6. Skin colour (YCrCb)
     ycrcb = cv.cvtColor(cropped_bgr, cv.COLOR_BGR2YCrCb)
     cr_ch = ycrcb[:, :, 1][mask_px]
     cb_ch = ycrcb[:, :, 2][mask_px]
     skin_px = ((cr_ch >= 133) & (cr_ch <= 173) &
                (cb_ch >= 77)  & (cb_ch <= 127))
     skin_ratio = float(skin_px.sum()) / n_px
-
     if skin_ratio > 0.35:
-        scores['skin_penalty'] = -60    # clearly a hand / finger
+        scores['skin_penalty'] = -60
     elif skin_ratio > 0.20:
-        scores['skin_penalty'] = -30    # partially skin
+        scores['skin_penalty'] = -30
     else:
         scores['skin_penalty'] = 0
 
-    # 7. NEAR-WHITE BLANK SURFACE
-    # Evaluated on global statistics — a couple of dark dots cannot rescue
-    # an otherwise white strip (Image 5 paper-strip case).
+    # 7. Near-white blank surface
     if mean_val > 210 and mean_sat < 20:
         scores['white_surface_penalty'] = -50
     elif mean_val > 190 and mean_sat < 30:
@@ -243,8 +235,7 @@ def analyze_feather_texture(cropped_bgr):
     else:
         scores['white_surface_penalty'] = 0
 
-    texture_score = max(0, 100 + sum(scores.values()))
-    return texture_score, scores
+    return max(0, 100 + sum(scores.values())), scores
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -259,7 +250,6 @@ def compute_mask_quality_score(mask, bbox_w, bbox_h, mask_area, bbox_area, w, h)
     """
     scores = {}
 
-    # Part A: General quality
     mask_to_bbox = mask_area / bbox_area if bbox_area > 0 else 0
     if mask_to_bbox >= 0.40:
         scores['compactness'] = 25
@@ -297,7 +287,6 @@ def compute_mask_quality_score(mask, bbox_w, bbox_h, mask_area, bbox_area, w, h)
 
     general_quality = sum(scores.values())
 
-    # Part B: Feather shape
     feather_likelihood, feather_features = analyze_feather_shape(mask, bbox_w, bbox_h)
     scores.update(feather_features)
 
@@ -318,8 +307,48 @@ def _crop_mask(image, mask, x1, y1, x2, y2):
     return (image * mask_3ch)[y1:y2 + 1, x1:x2 + 1]
 
 
+_CSV_FIELDNAMES = [
+    "image_path", "mask_index", "mask_area", "bbox_area",
+    "mask_to_bbox", "mask_to_image", "black_ratio", "bbox_aspect",
+    "total_score", "general_quality", "feather_likelihood", "texture_score",
+    "elongation", "tapering", "smoothness", "symmetry",
+    "texture_shape", "solidity_penalty",
+    "tex_sat", "tex_hue", "tex_brightness", "tex_smoothness",
+    "tex_edges", "tex_skin", "tex_white_surface",
+    "accepted", "reject_reason", "rank", "size_check_passed",
+]
+
+
+def _already_processed(output_dir):
+    """
+    Scan output_dir for files matching '*_mask*_crop.png' and return the set
+    of source base-names that have already been processed.
+
+    Example: 'abc123_600_mask0_crop.png' -> base-name 'abc123_600'
+
+    This works because accepted crop filenames are always:
+        {source_base_name}_mask{N}_crop.png
+    so splitting on '_mask' and taking everything before the first occurrence
+    recovers the original image stem reliably.
+    """
+    done = set()
+    if not os.path.isdir(output_dir):
+        return done
+    for f in os.scandir(output_dir):
+        if f.name.endswith("_crop.png") and "_mask" in f.name:
+            # Split on the LAST occurrence of '_mask' that is followed by digits
+            # to be robust against base-names that themselves contain '_mask'.
+            stem = f.name[:-len("_crop.png")]  # strip suffix
+            # Walk backwards to find '_mask<digits>' pattern
+            idx = stem.rfind("_mask")
+            if idx != -1:
+                candidate_base = stem[:idx]
+                done.add(candidate_base)
+    return done
+
+
 # ─────────────────────────────────────────────────────────────────────────────
-# SEGMENTATION
+# SEGMENTATION  (with resume support)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def segmentation(input_dir="img",
@@ -340,16 +369,20 @@ def segmentation(input_dir="img",
                  max_masks_per_image=4,
                  verbose=True):
     """
-    Feather segmentation pipeline with three sequential acceptance gates:
+    Feather segmentation pipeline with resume-from-checkpoint support.
 
-      Gate 1 - SIZE        : mask_area / image_area in [min_size_ratio, max_size_ratio]
-      Gate 2 - SHAPE       : geometry quality score + feather-shape score
-      Gate 3 - TEXTURE/COL : pixel-level content — catches rulers, sticks,
-                             cards, hands, fingers, white paper, and other
-                             non-feather shapes that share feather geometry.
+    If the pipeline is interrupted and restarted, it compares the source
+    images in input_dir against the crops already written to output_dir.
+    Any source image whose base-name already appears in an output crop
+    filename is skipped — only the remaining images are segmented.
 
-    Accepted crops are saved directly to output_dir (flat, no sub-folders).
-    All decisions are logged to stats_csv_path.
+    The CSV is opened in APPEND mode when resuming so previous results
+    are preserved and new rows are added after them.
+
+    Gates (applied in order):
+      1. SIZE        : 2% – 80% of image area
+      2. SHAPE       : geometry quality + feather-shape score
+      3. TEXTURE/COL : pixel-level content (skin, white surface, rulers …)
     """
     if output_dir is None:
         output_dir = _subdir("segmentation")
@@ -359,316 +392,336 @@ def segmentation(input_dir="img",
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.dirname(stats_csv_path), exist_ok=True)
 
+    # ── Resume: find which source images are already done ────────────────────
+    already_done = _already_processed(output_dir)
+
+    # CSV: write header only when starting fresh; append when resuming
+    csv_is_new = not os.path.isfile(stats_csv_path) or os.path.getsize(stats_csv_path) == 0
+    csv_file   = open(stats_csv_path, "a", newline="")
+    csv_writer = csv.DictWriter(csv_file, fieldnames=_CSV_FIELDNAMES)
+    if csv_is_new:
+        csv_writer.writeheader()
+
+    if verbose and already_done:
+        print(f"[resume] {len(already_done)} image(s) already processed — skipping them.")
+
+    # ── Load model ────────────────────────────────────────────────────────────
     model = SAM(sam_weights_path)
     try:
         model.to("cuda")
     except Exception:
         print("GPU not available, using CPU")
 
-    saved = []
-    rows  = []
+    saved     = []
     img_index = 0
 
-    for entry in sorted(os.scandir(input_dir), key=lambda e: e.name):
-        if not entry.is_file():
-            continue
-
-        image_path = entry.path
-        image = cv.imread(image_path)
-        if image is None:
-            if verbose:
-                print(f"Could not read {image_path}")
-            continue
-
-        h, w      = image.shape[:2]
-        base_name = os.path.splitext(os.path.basename(image_path))[0]
-
-        # imgsz=1036 avoids the SAM stride-14 warning
-        results = model(image_path, save=False, imgsz=1036)
-
-        # Guard: SAM returns None masks when nothing is detected
-        if results[0].masks is None:
-            if verbose:
-                print(f"[{img_index}] {base_name}: no detections, skipping")
-            img_index += 1
-            continue
-
-        # ── Build mask list ───────────────────────────────────────────────────
-        image_masks = []
-        for mask_i, mask_t in enumerate(results[0].masks.data):
-            mask = mask_t.cpu().numpy().astype(np.uint8)
-            mask = cv.resize(mask, (w, h), interpolation=cv.INTER_NEAREST)
-            mask = clean_mask(mask, close_kernel=close_kernel,
-                              min_component_area=min_component_area)
-
-            ys, xs = np.where(mask == 1)
-            if len(xs) == 0 or len(ys) == 0:
+    try:
+        for entry in sorted(os.scandir(input_dir), key=lambda e: e.name):
+            if not entry.is_file():
                 continue
 
-            x1, x2   = int(xs.min()), int(xs.max())
-            y1, y2   = int(ys.min()), int(ys.max())
-            bbox_w   = x2 - x1 + 1
-            bbox_h   = y2 - y1 + 1
-            bbox_area = float(bbox_w * bbox_h)
-            mask_area = float(mask.sum())
+            image_path = entry.path
+            base_name  = os.path.splitext(os.path.basename(image_path))[0]
 
-            quality_score, score_breakdown = compute_mask_quality_score(
-                mask, bbox_w, bbox_h, mask_area, bbox_area, w, h)
-
-            image_masks.append({
-                'mask_i':          mask_i,
-                'mask':            mask,
-                'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
-                'mask_area':       mask_area,
-                'bbox_area':       bbox_area,
-                'quality_score':   quality_score,
-                'score_breakdown': score_breakdown,
-            })
-
-        # ── Gate 1: Size ──────────────────────────────────────────────────────
-        valid_masks   = []
-        size_rejected = []
-
-        for md in image_masks:
-            ratio = md['mask_area'] / (w * h)
-            if ratio < min_size_ratio:
-                size_rejected.append(
-                    (md, ratio, f"too_small {ratio:.4f} < {min_size_ratio}"))
-            elif ratio > max_size_ratio:
-                size_rejected.append(
-                    (md, ratio, f"too_large {ratio:.4f} > {max_size_ratio}"))
-            else:
-                valid_masks.append(md)
-
-        valid_masks.sort(
-            key=lambda x: (x['quality_score'], x['mask_area']), reverse=True)
-
-        # ── Gates 2 & 3: Shape + texture ──────────────────────────────────────
-        accepted_count   = 0
-        quality_rejected = []
-
-        for md in valid_masks:
-            ratio         = md['mask_area'] / (w * h)
-            total_score   = md['quality_score']
-            feather_score = md['score_breakdown'].get('feather_likelihood', 0)
-            fname         = f"{base_name}_mask{md['mask_i']}_crop.png"
-            out_path      = os.path.join(output_dir, fname)
-
-            # Gate 2a: max masks per image
-            if max_masks_per_image is not None and accepted_count >= max_masks_per_image:
-                quality_rejected.append(
-                    (md, ratio, total_score, feather_score, 0, {},
-                     f"max_limit_reached (already have {max_masks_per_image})"))
+            # ── RESUME CHECK ─────────────────────────────────────────────────
+            if base_name in already_done:
+                if verbose:
+                    print(f"[{img_index}] {base_name}: already processed, skipping")
+                img_index += 1
                 continue
 
-            # Gate 2b: geometry quality + feather shape
-            reject_reasons = []
-            if total_score < min_quality_score:
-                reject_reasons.append(f"quality {total_score:.0f} < {min_quality_score}")
-            if feather_score < min_feather_likelihood:
-                reject_reasons.append(
-                    f"feather_shape {feather_score:.0f} < {min_feather_likelihood}")
-
-            if reject_reasons:
-                quality_rejected.append(
-                    (md, ratio, total_score, feather_score, 0, {},
-                     " AND ".join(reject_reasons)))
+            image = cv.imread(image_path)
+            if image is None:
+                if verbose:
+                    print(f"Could not read {image_path}")
                 continue
 
-            # Gate 3: texture / colour (requires cropping first)
-            cropped = _crop_mask(image, md['mask'],
-                                 md['x1'], md['y1'], md['x2'], md['y2'])
-            texture_score, texture_breakdown = analyze_feather_texture(cropped)
+            h, w = image.shape[:2]
 
-            if texture_score < min_texture_score:
-                tex_detail = ", ".join(
-                    f"{k}={v}" for k, v in texture_breakdown.items() if v != 0)
-                quality_rejected.append(
-                    (md, ratio, total_score, feather_score,
-                     texture_score, texture_breakdown,
-                     f"texture {texture_score:.0f} < {min_texture_score} ({tex_detail})"))
-                # save_all_masks still writes rejected crops for inspection
+            # imgsz=1036 avoids the SAM stride-14 warning
+            results = model(image_path, save=False, imgsz=1036)
+
+            if results[0].masks is None:
+                if verbose:
+                    print(f"[{img_index}] {base_name}: no detections, skipping")
+                # Mark as processed so a restart won't attempt it again.
+                # We do this by writing a sentinel row to the CSV.
+                csv_writer.writerow({f: "" for f in _CSV_FIELDNAMES} | {
+                    "image_path":  image_path,
+                    "accepted":    False,
+                    "reject_reason": "no_detections",
+                    "rank":        "skipped",
+                })
+                csv_file.flush()
+                img_index += 1
+                continue
+
+            # ── Build mask list ───────────────────────────────────────────────
+            image_masks = []
+            for mask_i, mask_t in enumerate(results[0].masks.data):
+                mask = mask_t.cpu().numpy().astype(np.uint8)
+                mask = cv.resize(mask, (w, h), interpolation=cv.INTER_NEAREST)
+                mask = clean_mask(mask, close_kernel=close_kernel,
+                                  min_component_area=min_component_area)
+
+                ys, xs = np.where(mask == 1)
+                if len(xs) == 0 or len(ys) == 0:
+                    continue
+
+                x1, x2    = int(xs.min()), int(xs.max())
+                y1, y2    = int(ys.min()), int(ys.max())
+                bbox_w    = x2 - x1 + 1
+                bbox_h    = y2 - y1 + 1
+                bbox_area = float(bbox_w * bbox_h)
+                mask_area = float(mask.sum())
+
+                quality_score, score_breakdown = compute_mask_quality_score(
+                    mask, bbox_w, bbox_h, mask_area, bbox_area, w, h)
+
+                image_masks.append({
+                    'mask_i':          mask_i,
+                    'mask':            mask,
+                    'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
+                    'mask_area':       mask_area,
+                    'bbox_area':       bbox_area,
+                    'quality_score':   quality_score,
+                    'score_breakdown': score_breakdown,
+                })
+
+            # ── Gate 1: Size ──────────────────────────────────────────────────
+            valid_masks   = []
+            size_rejected = []
+            for md in image_masks:
+                ratio = md['mask_area'] / (w * h)
+                if ratio < min_size_ratio:
+                    size_rejected.append(
+                        (md, ratio, f"too_small {ratio:.4f} < {min_size_ratio}"))
+                elif ratio > max_size_ratio:
+                    size_rejected.append(
+                        (md, ratio, f"too_large {ratio:.4f} > {max_size_ratio}"))
+                else:
+                    valid_masks.append(md)
+
+            valid_masks.sort(
+                key=lambda x: (x['quality_score'], x['mask_area']), reverse=True)
+
+            # ── Gates 2 & 3: Shape + texture ──────────────────────────────────
+            accepted_count   = 0
+            quality_rejected = []
+
+            for md in valid_masks:
+                ratio         = md['mask_area'] / (w * h)
+                total_score   = md['quality_score']
+                feather_score = md['score_breakdown'].get('feather_likelihood', 0)
+                fname         = f"{base_name}_mask{md['mask_i']}_crop.png"
+                out_path      = os.path.join(output_dir, fname)
+
+                if max_masks_per_image is not None and accepted_count >= max_masks_per_image:
+                    quality_rejected.append(
+                        (md, ratio, total_score, feather_score, 0, {},
+                         f"max_limit_reached (already have {max_masks_per_image})"))
+                    continue
+
+                reject_reasons = []
+                if total_score < min_quality_score:
+                    reject_reasons.append(f"quality {total_score:.0f} < {min_quality_score}")
+                if feather_score < min_feather_likelihood:
+                    reject_reasons.append(
+                        f"feather_shape {feather_score:.0f} < {min_feather_likelihood}")
+
+                if reject_reasons:
+                    quality_rejected.append(
+                        (md, ratio, total_score, feather_score, 0, {},
+                         " AND ".join(reject_reasons)))
+                    continue
+
+                cropped = _crop_mask(image, md['mask'],
+                                     md['x1'], md['y1'], md['x2'], md['y2'])
+                texture_score, texture_breakdown = analyze_feather_texture(cropped)
+
+                if texture_score < min_texture_score:
+                    tex_detail = ", ".join(
+                        f"{k}={v}" for k, v in texture_breakdown.items() if v != 0)
+                    quality_rejected.append(
+                        (md, ratio, total_score, feather_score,
+                         texture_score, texture_breakdown,
+                         f"texture {texture_score:.0f} < {min_texture_score} ({tex_detail})"))
+                    if save_all_masks:
+                        cv.imwrite(out_path, cropped)
+                    continue
+
+                # APPROVED
+                cv.imwrite(out_path, cropped)
+                saved.append(out_path)
+                accepted_count += 1
+
+                sb  = md['score_breakdown']
+                row = {
+                    "image_path":         image_path,
+                    "mask_index":         md['mask_i'],
+                    "mask_area":          int(md['mask_area']),
+                    "bbox_area":          int(md['bbox_area']),
+                    "mask_to_bbox":       md['mask_area'] / md['bbox_area'],
+                    "mask_to_image":      ratio,
+                    "black_ratio":        (md['bbox_area'] - md['mask_area']) / md['bbox_area'],
+                    "bbox_aspect":        (md['x2'] - md['x1'] + 1) / (md['y2'] - md['y1'] + 1),
+                    "total_score":        total_score,
+                    "general_quality":    sb.get('general_quality', 0),
+                    "feather_likelihood": feather_score,
+                    "texture_score":      texture_score,
+                    "elongation":         sb.get('elongation_score', 0),
+                    "tapering":           sb.get('tapering_score', 0),
+                    "smoothness":         sb.get('smoothness_score', 0),
+                    "symmetry":           sb.get('symmetry_score', 0),
+                    "texture_shape":      sb.get('texture_score', 0),
+                    "solidity_penalty":   sb.get('solidity_penalty', 0),
+                    "tex_sat":            texture_breakdown.get('sat_penalty', 0),
+                    "tex_hue":            texture_breakdown.get('hue_uniformity_penalty', 0),
+                    "tex_brightness":     texture_breakdown.get('brightness_penalty', 0),
+                    "tex_smoothness":     texture_breakdown.get('smoothness_penalty', 0),
+                    "tex_edges":          texture_breakdown.get('edge_density_penalty', 0),
+                    "tex_skin":           texture_breakdown.get('skin_penalty', 0),
+                    "tex_white_surface":  texture_breakdown.get('white_surface_penalty', 0),
+                    "accepted":           True,
+                    "reject_reason":      "",
+                    "rank":               accepted_count,
+                    "size_check_passed":  True,
+                }
+                csv_writer.writerow(row)
+
+                if verbose:
+                    print(f"[{img_index}] {base_name} mask#{md['mask_i']}: "
+                          f"total={total_score:.0f}/200 "
+                          f"(quality={sb.get('general_quality', 0):.0f} "
+                          f"+ feather={feather_score:.0f} "
+                          f"+ texture={texture_score:.0f}) "
+                          f"size={ratio:.4f} -> ACCEPT (#{accepted_count})")
+
+            # ── Log quality/texture-rejected ──────────────────────────────────
+            for (md, ratio, total_score, feather_score,
+                 texture_score, texture_breakdown, reason) in quality_rejected:
+
                 if save_all_masks:
+                    fname    = f"{base_name}_mask{md['mask_i']}_crop.png"
+                    out_path = os.path.join(output_dir, fname)
+                    cropped  = _crop_mask(image, md['mask'],
+                                          md['x1'], md['y1'], md['x2'], md['y2'])
                     cv.imwrite(out_path, cropped)
-                continue
 
-            # ── APPROVED ──────────────────────────────────────────────────────
-            cv.imwrite(out_path, cropped)
-            saved.append(out_path)
-            accepted_count += 1
+                sb  = md['score_breakdown']
+                row = {
+                    "image_path":         image_path,
+                    "mask_index":         md['mask_i'],
+                    "mask_area":          int(md['mask_area']),
+                    "bbox_area":          int(md['bbox_area']),
+                    "mask_to_bbox":       md['mask_area'] / md['bbox_area'],
+                    "mask_to_image":      ratio,
+                    "black_ratio":        (md['bbox_area'] - md['mask_area']) / md['bbox_area'],
+                    "bbox_aspect":        (md['x2'] - md['x1'] + 1) / (md['y2'] - md['y1'] + 1),
+                    "total_score":        total_score,
+                    "general_quality":    sb.get('general_quality', 0),
+                    "feather_likelihood": feather_score,
+                    "texture_score":      texture_score,
+                    "elongation":         sb.get('elongation_score', 0),
+                    "tapering":           sb.get('tapering_score', 0),
+                    "smoothness":         sb.get('smoothness_score', 0),
+                    "symmetry":           sb.get('symmetry_score', 0),
+                    "texture_shape":      sb.get('texture_score', 0),
+                    "solidity_penalty":   sb.get('solidity_penalty', 0),
+                    "tex_sat":            texture_breakdown.get('sat_penalty', 0),
+                    "tex_hue":            texture_breakdown.get('hue_uniformity_penalty', 0),
+                    "tex_brightness":     texture_breakdown.get('brightness_penalty', 0),
+                    "tex_smoothness":     texture_breakdown.get('smoothness_penalty', 0),
+                    "tex_edges":          texture_breakdown.get('edge_density_penalty', 0),
+                    "tex_skin":           texture_breakdown.get('skin_penalty', 0),
+                    "tex_white_surface":  texture_breakdown.get('white_surface_penalty', 0),
+                    "accepted":           False,
+                    "reject_reason":      reason,
+                    "rank":               "rejected",
+                    "size_check_passed":  True,
+                }
+                csv_writer.writerow(row)
 
-            sb = md['score_breakdown']
-            rows.append({
-                "image_path":         image_path,
-                "mask_index":         md['mask_i'],
-                "mask_area":          int(md['mask_area']),
-                "bbox_area":          int(md['bbox_area']),
-                "mask_to_bbox":       md['mask_area'] / md['bbox_area'],
-                "mask_to_image":      ratio,
-                "black_ratio":        (md['bbox_area'] - md['mask_area']) / md['bbox_area'],
-                "bbox_aspect":        (md['x2'] - md['x1'] + 1) / (md['y2'] - md['y1'] + 1),
-                "total_score":        total_score,
-                "general_quality":    sb.get('general_quality', 0),
-                "feather_likelihood": feather_score,
-                "texture_score":      texture_score,
-                "elongation":         sb.get('elongation_score', 0),
-                "tapering":           sb.get('tapering_score', 0),
-                "smoothness":         sb.get('smoothness_score', 0),
-                "symmetry":           sb.get('symmetry_score', 0),
-                "texture_shape":      sb.get('texture_score', 0),
-                "solidity_penalty":   sb.get('solidity_penalty', 0),
-                "tex_sat":            texture_breakdown.get('sat_penalty', 0),
-                "tex_hue":            texture_breakdown.get('hue_uniformity_penalty', 0),
-                "tex_brightness":     texture_breakdown.get('brightness_penalty', 0),
-                "tex_smoothness":     texture_breakdown.get('smoothness_penalty', 0),
-                "tex_edges":          texture_breakdown.get('edge_density_penalty', 0),
-                "tex_skin":           texture_breakdown.get('skin_penalty', 0),
-                "tex_white_surface":  texture_breakdown.get('white_surface_penalty', 0),
-                "accepted":           True,
-                "reject_reason":      "",
-                "rank":               accepted_count,
-                "size_check_passed":  True,
-            })
+                if verbose:
+                    print(f"[{img_index}] {base_name} mask#{md['mask_i']}: "
+                          f"total={total_score:.0f}/200 "
+                          f"(quality={sb.get('general_quality', 0):.0f} "
+                          f"+ feather={feather_score:.0f} "
+                          f"+ texture={texture_score:.0f}) "
+                          f"size={ratio:.4f} -> REJECT: {reason}")
 
-            if verbose:
-                print(f"[{img_index}] {base_name} mask#{md['mask_i']}: "
-                      f"total={total_score:.0f}/200 "
-                      f"(quality={sb.get('general_quality', 0):.0f} "
-                      f"+ feather={feather_score:.0f} "
-                      f"+ texture={texture_score:.0f}) "
-                      f"size={ratio:.4f} -> ACCEPT (#{accepted_count})")
+            # ── Log size-rejected ─────────────────────────────────────────────
+            for md, ratio, reason in size_rejected:
+                if save_all_masks:
+                    fname    = f"{base_name}_mask{md['mask_i']}_crop.png"
+                    out_path = os.path.join(output_dir, fname)
+                    cropped  = _crop_mask(image, md['mask'],
+                                          md['x1'], md['y1'], md['x2'], md['y2'])
+                    cv.imwrite(out_path, cropped)
 
-        # ── Log quality/texture-rejected ──────────────────────────────────────
-        for (md, ratio, total_score, feather_score,
-             texture_score, texture_breakdown, reason) in quality_rejected:
+                sb            = md['score_breakdown']
+                total_score   = md['quality_score']
+                feather_score = sb.get('feather_likelihood', 0)
+                row = {
+                    "image_path":         image_path,
+                    "mask_index":         md['mask_i'],
+                    "mask_area":          int(md['mask_area']),
+                    "bbox_area":          int(md['bbox_area']),
+                    "mask_to_bbox":       md['mask_area'] / md['bbox_area'],
+                    "mask_to_image":      ratio,
+                    "black_ratio":        (md['bbox_area'] - md['mask_area']) / md['bbox_area'],
+                    "bbox_aspect":        (md['x2'] - md['x1'] + 1) / (md['y2'] - md['y1'] + 1),
+                    "total_score":        total_score,
+                    "general_quality":    sb.get('general_quality', 0),
+                    "feather_likelihood": feather_score,
+                    "texture_score":      0,
+                    "elongation":         sb.get('elongation_score', 0),
+                    "tapering":           sb.get('tapering_score', 0),
+                    "smoothness":         sb.get('smoothness_score', 0),
+                    "symmetry":           sb.get('symmetry_score', 0),
+                    "texture_shape":      sb.get('texture_score', 0),
+                    "solidity_penalty":   sb.get('solidity_penalty', 0),
+                    "tex_sat": 0, "tex_hue": 0, "tex_brightness": 0,
+                    "tex_smoothness": 0, "tex_edges": 0,
+                    "tex_skin": 0, "tex_white_surface": 0,
+                    "accepted":           False,
+                    "reject_reason":      reason,
+                    "rank":               "rejected",
+                    "size_check_passed":  False,
+                }
+                csv_writer.writerow(row)
 
-            if save_all_masks:
-                fname    = f"{base_name}_mask{md['mask_i']}_crop.png"
-                out_path = os.path.join(output_dir, fname)
-                cropped  = _crop_mask(image, md['mask'],
-                                      md['x1'], md['y1'], md['x2'], md['y2'])
-                cv.imwrite(out_path, cropped)
+                if verbose:
+                    print(f"[{img_index}] {base_name} mask#{md['mask_i']}: "
+                          f"size={ratio:.4f} -> REJECT (size): {reason}")
 
-            sb = md['score_breakdown']
-            rows.append({
-                "image_path":         image_path,
-                "mask_index":         md['mask_i'],
-                "mask_area":          int(md['mask_area']),
-                "bbox_area":          int(md['bbox_area']),
-                "mask_to_bbox":       md['mask_area'] / md['bbox_area'],
-                "mask_to_image":      ratio,
-                "black_ratio":        (md['bbox_area'] - md['mask_area']) / md['bbox_area'],
-                "bbox_aspect":        (md['x2'] - md['x1'] + 1) / (md['y2'] - md['y1'] + 1),
-                "total_score":        total_score,
-                "general_quality":    sb.get('general_quality', 0),
-                "feather_likelihood": feather_score,
-                "texture_score":      texture_score,
-                "elongation":         sb.get('elongation_score', 0),
-                "tapering":           sb.get('tapering_score', 0),
-                "smoothness":         sb.get('smoothness_score', 0),
-                "symmetry":           sb.get('symmetry_score', 0),
-                "texture_shape":      sb.get('texture_score', 0),
-                "solidity_penalty":   sb.get('solidity_penalty', 0),
-                "tex_sat":            texture_breakdown.get('sat_penalty', 0),
-                "tex_hue":            texture_breakdown.get('hue_uniformity_penalty', 0),
-                "tex_brightness":     texture_breakdown.get('brightness_penalty', 0),
-                "tex_smoothness":     texture_breakdown.get('smoothness_penalty', 0),
-                "tex_edges":          texture_breakdown.get('edge_density_penalty', 0),
-                "tex_skin":           texture_breakdown.get('skin_penalty', 0),
-                "tex_white_surface":  texture_breakdown.get('white_surface_penalty', 0),
-                "accepted":           False,
-                "reject_reason":      reason,
-                "rank":               "rejected",
-                "size_check_passed":  True,
-            })
+            # Flush after every image so a crash doesn't lose the last rows
+            csv_file.flush()
 
-            if verbose:
-                print(f"[{img_index}] {base_name} mask#{md['mask_i']}: "
-                      f"total={total_score:.0f}/200 "
-                      f"(quality={sb.get('general_quality', 0):.0f} "
-                      f"+ feather={feather_score:.0f} "
-                      f"+ texture={texture_score:.0f}) "
-                      f"size={ratio:.4f} -> REJECT: {reason}")
+            if verbose and accepted_count > 0:
+                print(f"  -> Image {img_index}: accepted {accepted_count} feather(s)")
 
-        # ── Log size-rejected ─────────────────────────────────────────────────
-        for md, ratio, reason in size_rejected:
-            if save_all_masks:
-                fname    = f"{base_name}_mask{md['mask_i']}_crop.png"
-                out_path = os.path.join(output_dir, fname)
-                cropped  = _crop_mask(image, md['mask'],
-                                      md['x1'], md['y1'], md['x2'], md['y2'])
-                cv.imwrite(out_path, cropped)
+            img_index += 1
 
-            sb            = md['score_breakdown']
-            total_score   = md['quality_score']
-            feather_score = sb.get('feather_likelihood', 0)
-
-            rows.append({
-                "image_path":         image_path,
-                "mask_index":         md['mask_i'],
-                "mask_area":          int(md['mask_area']),
-                "bbox_area":          int(md['bbox_area']),
-                "mask_to_bbox":       md['mask_area'] / md['bbox_area'],
-                "mask_to_image":      ratio,
-                "black_ratio":        (md['bbox_area'] - md['mask_area']) / md['bbox_area'],
-                "bbox_aspect":        (md['x2'] - md['x1'] + 1) / (md['y2'] - md['y1'] + 1),
-                "total_score":        total_score,
-                "general_quality":    sb.get('general_quality', 0),
-                "feather_likelihood": feather_score,
-                "texture_score":      0,
-                "elongation":         sb.get('elongation_score', 0),
-                "tapering":           sb.get('tapering_score', 0),
-                "smoothness":         sb.get('smoothness_score', 0),
-                "symmetry":           sb.get('symmetry_score', 0),
-                "texture_shape":      sb.get('texture_score', 0),
-                "solidity_penalty":   sb.get('solidity_penalty', 0),
-                "tex_sat": 0, "tex_hue": 0, "tex_brightness": 0,
-                "tex_smoothness": 0, "tex_edges": 0,
-                "tex_skin": 0, "tex_white_surface": 0,
-                "accepted":           False,
-                "reject_reason":      reason,
-                "rank":               "rejected",
-                "size_check_passed":  False,
-            })
-
-            if verbose:
-                print(f"[{img_index}] {base_name} mask#{md['mask_i']}: "
-                      f"size={ratio:.4f} -> REJECT (size): {reason}")
-
-        if verbose and accepted_count > 0:
-            print(f"  -> Image {img_index}: accepted {accepted_count} feather(s)")
-
-        img_index += 1
-
-    # ── Write CSV ─────────────────────────────────────────────────────────────
-    fieldnames = [
-        "image_path", "mask_index", "mask_area", "bbox_area",
-        "mask_to_bbox", "mask_to_image", "black_ratio", "bbox_aspect",
-        "total_score", "general_quality", "feather_likelihood", "texture_score",
-        "elongation", "tapering", "smoothness", "symmetry",
-        "texture_shape", "solidity_penalty",
-        "tex_sat", "tex_hue", "tex_brightness", "tex_smoothness",
-        "tex_edges", "tex_skin", "tex_white_surface",
-        "accepted", "reject_reason", "rank", "size_check_passed",
-    ]
-    with open(stats_csv_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    finally:
+        # Always close the CSV, even on Ctrl-C or crash
+        csv_file.close()
 
     if verbose:
-        n_rejected = sum(1 for r in rows if not r["accepted"])
+        total_in_dir = sum(
+            1 for f in os.scandir(output_dir)
+            if f.name.endswith("_crop.png"))
         print(f"\n{'=' * 60}")
-        print(f"Saved  : {len(saved):>4} feather crops -> {output_dir}")
-        print(f"Rejected (logged only): {n_rejected}")
-        print(f"CSV    : {stats_csv_path}")
+        print(f"This run : {len(saved):>4} new crops saved")
+        print(f"Total in output dir : {total_in_dir}")
+        print(f"CSV      : {stats_csv_path}")
         print(f"{'=' * 60}")
 
     return saved, stats_csv_path
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# REMAINING PREPROCESSING STEPS  (unchanged)
+# REMAINING PREPROCESSING STEPS
 # ─────────────────────────────────────────────────────────────────────────────
 
 def denoise():
@@ -720,6 +773,27 @@ def image_padding():
             os.path.join(_subdir("padding"), f"padded_{index}.png"))
     print("Padding and resizing complete!")
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PIPELINE ENTRY POINT
+# ─────────────────────────────────────────────────────────────────────────────
+
+def data_preprocess(dir, sam_weights_path="sam3.pt"):
+    segmentation(
+        input_dir=dir,
+        sam_weights_path=sam_weights_path,
+        save_all_masks=False,
+        min_quality_score=120,
+        min_feather_likelihood=85,
+        min_texture_score=40,
+        min_size_ratio=0.015,
+        max_size_ratio=0.80,
+        max_masks_per_image=10,
+        verbose=True,
+    )
+    denoise()
+    enhance_contrast()
+    image_padding()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PIPELINE ENTRY POINT
