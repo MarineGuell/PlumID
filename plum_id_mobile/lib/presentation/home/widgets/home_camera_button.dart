@@ -20,7 +20,7 @@ class HomeActionButtons extends ConsumerWidget {
         children: [
           Expanded(
             child: _buildActionCard(
-              title: "Scanner",
+              title: "Identifier",
               icon: Icons.camera_alt,
               onTap: () => _openCamera(context, ref),
             ),
