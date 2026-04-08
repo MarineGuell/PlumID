@@ -50,6 +50,7 @@ app.*.map.json
 /android/local.properties
 /android/.gradle/
 /android/captures/
+/android/key.properties
 
 # iOS / macOS CocoaPods
 ios/Pods/
@@ -57,6 +58,9 @@ ios/Podfile.lock
 macos/Pods/
 macos/Podfile.lock
 ios/.generated/
+macos/.generated/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
 
 # Windows
 /windows/flutter/generated_plugin_registrant.cc
