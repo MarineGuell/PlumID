@@ -11,7 +11,7 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 ## 🎯 Objectifs
 
-- 🧠 Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume. 
+- 🧠 Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume.
 - 💡 Développer une **interface mobile intuitive** adaptée à un large public.  
 - 🌱 Sensibiliser à la **préservation de la biodiversité** et faciliter les travaux des **chercheurs en ornithologie**.
 
@@ -20,14 +20,14 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 ## 👥 Équipe projet
 
 | Nom | Rôle / spécialité |
-|------|-------------------|
+| ------ | ------------------- |
 | **Marine Guell** | Coordination & expertise métier |
 | **Paul Berdier** | Backend / API - Infrastructure & DevOps |
 | **Louis** | Base de données & structure - Collecte & annotation des données |
 | **Théo** | IA / Entraînement du modèle - Collecte & annotation des données |
 | **Yann** | Data science / IA / Entraînement du modèle |
 | **Fabien** | Communication |
-| **Anass** |  Base de données & structure - Collecte & annotation des données |
+| **Anass** | Base de données & structure - Collecte & annotation des données |
 | **Marc Ezechiel** | IA / Entraînement du modèle |
 | **Amdjad** | Frontend |
 | **Laura** | Frontend |
@@ -39,7 +39,7 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 ## 🧩 Fonctionnalités principales (prévisionnelles)
 
 | Fonctionnalité | Description |
-|----------------|-------------|
+| ---------------- | ------------- |
 | 📷 **Reconnaissance d’image** | Identification d’espèces à partir d’une photo de plume |
 | 📊 **Probabilités d’espèces** | Classement des résultats avec taux de confiance |
 | 📚 **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
@@ -113,31 +113,31 @@ L’API lit sa configuration via des **variables d’environnement** (gérées p
 
 Principaux paramètres :
 
-* **Base de données**
+- **Base de données**
 
-  * `DATABASE_URL` (recommandé)
+  - `DATABASE_URL` (recommandé)
     Exemple :
     `mysql+pymysql://plumid:password@localhost:3306/plumid?charset=utf8mb4`
 
-* **Auth & JWT**
+- **Auth & JWT**
 
-  * `AUTH_SECRET` : secret pour signer les JWT
-  * `ACCESS_TOKEN_EXPIRE_MINUTES` : durée de vie des tokens
+  - `AUTH_SECRET` : secret pour signer les JWT
+  - `ACCESS_TOKEN_EXPIRE_MINUTES` : durée de vie des tokens
 
-* **API Key service-to-service**
+- **API Key service-to-service**
 
-  * `PLUMID_API_KEY`
+  - `PLUMID_API_KEY`
 
-* **CORS**
+- **CORS**
 
-  * `CORS_ALLOW_ORIGINS` : CSV d’origines autorisées
+  - `CORS_ALLOW_ORIGINS` : CSV d’origines autorisées
     ex : `http://localhost:3000,https://plumid.example.com`
 
-* **SMTP (vérification email + reset password)**
+- **SMTP (vérification email + reset password)**
 
-  * `SMTP_HOST`, `SMTP_PORT`
-  * `SMTP_USER`, `SMTP_PASSWORD`
-  * `SMTP_FROM`
+  - `SMTP_HOST`, `SMTP_PORT`
+  - `SMTP_USER`, `SMTP_PASSWORD`
+  - `SMTP_FROM`
 
 ---
 
@@ -270,8 +270,8 @@ Lancement :
 docker compose up --build
 ```
 
-* API : `http://localhost:8000`
-* MySQL : `localhost:3306` (user `plumid`, password `plumid_password`)
+- API : `http://localhost:8000`
+- MySQL : `localhost:3306` (user `plumid`, password `plumid_password`)
 
 Plus tard, d’autres services (front web, modèle IA) pourront être ajoutés au `docker-compose.yml`.
 
@@ -283,9 +283,9 @@ Pour une infra plus “prod” (multi-services, HA, scaling), Plum’ID est pens
 
 ### 1. Pré-requis
 
-* Cluster Kubernetes (K3s, k8s managé, Minikube…)
-* Ingress Controller (ex : Nginx Ingress)
-* Un registry Docker accessible par le cluster (GitHub Container Registry, Harbor, etc.)
+- Cluster Kubernetes (K3s, k8s managé, Minikube…)
+- Ingress Controller (ex : Nginx Ingress)
+- Un registry Docker accessible par le cluster (GitHub Container Registry, Harbor, etc.)
 
 ### 2. Build & push de l’image
 
@@ -305,12 +305,12 @@ image: registry.example.com/plumid-api:latest
 
 Les manifests se trouvent dans `k8s/` :
 
-* `namespace.yaml` : namespace dédié `plumid`
-* `api-configmap.yaml` : config non sensible (CORS, FRONTEND_BASE_URL, log…)
-* `api-secret.yaml` : secrets (DATABASE_URL, AUTH_SECRET, SMTP_USER/PASSWORD…)
-* `api-deployment.yaml` : déploiement de l’API (2 replicas, probes)
-* `api-service.yaml` : Service de type ClusterIP (`plumid-api`)
-* `api-ingress.yaml` : Ingress (ex : `api.plumid.example.com`)
+- `namespace.yaml` : namespace dédié `plumid`
+- `api-configmap.yaml` : config non sensible (CORS, FRONTEND_BASE_URL, log…)
+- `api-secret.yaml` : secrets (DATABASE_URL, AUTH_SECRET, SMTP_USER/PASSWORD…)
+- `api-deployment.yaml` : déploiement de l’API (2 replicas, probes)
+- `api-service.yaml` : Service de type ClusterIP (`plumid-api`)
+- `api-ingress.yaml` : Ingress (ex : `api.plumid.example.com`)
 
 Application des manifests :
 
@@ -341,8 +341,8 @@ https://api.plumid.example.com
 
 ## 🔭 Roadmap technique
 
-* [ ] Intégration du **service modèle IA** (service `plumid-ml` dédié, HTTP/gRPC)
-* [ ] Ajout du **frontend web** (`plumid-web`) dans Docker & Kubernetes
-* [ ] Mise en place d’un **worker async** (pré-traitement images, batch IA)
-* [ ] Migrations DB avec **Alembic**
-* [ ] Monitoring & observabilité (Prometheus, Grafana, logs centralisés)
+- [ ] Intégration du **service modèle IA** (service `plumid-ml` dédié, HTTP/gRPC)
+- [ ] Ajout du **frontend web** (`plumid-web`) dans Docker & Kubernetes
+- [ ] Mise en place d’un **worker async** (pré-traitement images, batch IA)
+- [ ] Migrations DB avec **Alembic**
+- [ ] Monitoring & observabilité (Prometheus, Grafana, logs centralisés)
