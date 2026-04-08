@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text
 from models.base import Base
 
 
@@ -13,6 +13,6 @@ class Species(Base):
                        index=True, autoincrement=True)
     region = Column(String(45))
     environment = Column(String(45))
-    information = Column(String(255))
+    information = Column(Text)
     species_name = Column(String(100))
     species_url_picture = Column(String(100))
