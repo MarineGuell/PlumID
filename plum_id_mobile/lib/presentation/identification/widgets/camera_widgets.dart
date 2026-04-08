@@ -329,8 +329,18 @@ class _CameraScreenState extends State<CameraScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Placeholder pour garder le bouton central au milieu
-                      const SizedBox(width: 60),
+                      // Bouton aide photo
+                      SizedBox(
+                        width: 60,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.help_outline,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                          onPressed: () => _showPhotoTutorial(context),
+                        ),
+                      ),
 
                       // Bouton photo
                       InkWell(
@@ -406,6 +416,93 @@ class _CameraScreenState extends State<CameraScreen> {
             ),
         ],
       ),
+    );
+  }
+
+  void _showPhotoTutorial(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (_) => SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Comment bien photographier votre plume ?',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  _tutorialSection(
+                    icon: Icons.crop_square,
+                    title: 'Fond',
+                    body:
+                        'Utilisez un fond uni et contrasté ( Il faut que la plume ressorte ) — '
+                        'choisissez la couleur opposée à celle de la plume. '
+                        'Évitez les fonds texturés (bois, tissu, herbe, gravier).',
+                  ),
+                  const SizedBox(height: 12),
+                  _tutorialSection(
+                    icon: Icons.do_not_touch,
+                    title: 'Isolation',
+                    body:
+                        'La plume doit être seule dans le cadre. '
+                        'Posez-la à plat — ne la tenez pas à la main. '
+                        'Les doigts, même partiels, perturbent la détection.',
+                  ),
+                  const SizedBox(height: 12),
+                  _tutorialSection(
+                    icon: Icons.photo_size_select_large,
+                    title: 'Distance et cadrage',
+                    body:
+                        "La plume doit occuper entre 30 % et 75 % de la surface de l'image. ",
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
+  Widget _tutorialSection({
+    required IconData icon,
+    required String title,
+    required String body,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: AppTheme.secondaryColor, size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                body,
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
