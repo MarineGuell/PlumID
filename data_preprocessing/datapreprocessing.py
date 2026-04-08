@@ -386,8 +386,10 @@ def segmentation(input_dir="img",
     """
     if output_dir is None:
         output_dir = _subdir("segmentation")
+
     if stats_csv_path is None:
-        stats_csv_path = os.path.join(_subdir("segmentation"), "segmentation_stats.csv")
+        base_dir = os.path.dirname(_subdir("segmentation"))
+        stats_csv_path = os.path.join(base_dir, "segmentation_stats.csv")
 
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.dirname(stats_csv_path), exist_ok=True)
@@ -772,28 +774,6 @@ def image_padding():
         canvas.resize((224, 224), Image.LANCZOS).save(
             os.path.join(_subdir("padding"), f"padded_{index}.png"))
     print("Padding and resizing complete!")
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# PIPELINE ENTRY POINT
-# ─────────────────────────────────────────────────────────────────────────────
-
-def data_preprocess(dir, sam_weights_path="sam3.pt"):
-    segmentation(
-        input_dir=dir,
-        sam_weights_path=sam_weights_path,
-        save_all_masks=False,
-        min_quality_score=120,
-        min_feather_likelihood=85,
-        min_texture_score=40,
-        min_size_ratio=0.015,
-        max_size_ratio=0.80,
-        max_masks_per_image=10,
-        verbose=True,
-    )
-    denoise()
-    enhance_contrast()
-    image_padding()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PIPELINE ENTRY POINT
