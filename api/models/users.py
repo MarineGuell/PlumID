@@ -14,7 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from api.models.base import Base
+from models.base import Base
 
 
 class Users(Base):

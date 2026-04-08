@@ -28,7 +28,7 @@ RUN pip install --upgrade pip && \
 
 # Copy the application source code into the corresponding package directory
 # Placed in /app/api to resolve the application's absolute imports (e.g., `from api.models.base import Base`)
-COPY . /app/api
+COPY . /app
 
 # Enforce least privilege security best practices
 # Create a non-privileged system user and assign ownership of the working directory
@@ -39,4 +39,4 @@ USER appuser
 EXPOSE 8000
 
 # Define the container's entrypoint instruction running the Uvicorn ASGI server
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

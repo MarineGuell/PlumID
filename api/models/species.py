@@ -1,6 +1,6 @@
 from __future__ import annotations
 from sqlalchemy import Column, Integer, String
-from api.models.base import Base
+from models.base import Base
 
 
 class Species(Base):

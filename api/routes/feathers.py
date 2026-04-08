@@ -1,9 +1,9 @@
 from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from api.db import get_db
-from api.models.feathers import Feathers
-from api.schemas.feathers import FeathersCreate, FeathersOut
+from db import get_db
+from models.feathers import Feathers
+from schemas.feathers import FeathersCreate, FeathersOut
 
 router = APIRouter(prefix="/feathers", tags=["feathers"])
 

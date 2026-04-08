@@ -1,7 +1,7 @@
 from __future__ import annotations
 from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
-from api.models.base import Base
+from models.base import Base
 
 
 class Feathers(Base):

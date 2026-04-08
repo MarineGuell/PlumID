@@ -1,5 +1,5 @@
 # api/tests/core/test_security.py
-from api.core.security import hash_password, verify_password, create_access_token, decode_access_token
+from core.security import hash_password, verify_password, create_access_token, decode_access_token
 from jose import JWTError
 import pytest
 

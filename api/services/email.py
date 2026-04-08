@@ -5,7 +5,7 @@ import logging
 import smtplib
 from email.message import EmailMessage
 
-from api.settings import settings
+from settings import settings
 
 logger = logging.getLogger(__name__)
 
