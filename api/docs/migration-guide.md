@@ -44,7 +44,7 @@ docker compose exec api alembic upgrade head
 ## Commandes utiles
 
 | Commande | Description |
-|---|---|
+| --- | --- |
 | `alembic upgrade head` | Applique toutes les migrations en attente |
 | `alembic upgrade +1` | Applique la prochaine migration uniquement |
 | `alembic downgrade -1` | Annule la dernière migration |
@@ -76,6 +76,7 @@ Le fichier de migration en BDD ne correspond à aucun fichier dans `alembic/vers
 ### La migration générée est vide
 
 Alembic n'a détecté aucun changement. Vérifier que :
+
 - Le modèle est bien importé dans `alembic/env.py` (via `import models`)
 - Le modèle hérite bien de `Base` (depuis `models/base.py`)
 
@@ -83,7 +84,7 @@ Alembic n'a détecté aucun changement. Vérifier que :
 
 ## Structure des fichiers
 
-```
+```txt
 alembic/
 ├── env.py            # Configuration Alembic (pointe vers Base.metadata et settings)
 ├── script.py.mako    # Template pour les fichiers de migration
