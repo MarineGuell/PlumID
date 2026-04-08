@@ -1,54 +1,46 @@
-# api/db.py
 from __future__ import annotations
 
-from contextlib import contextmanager
-from typing import Iterator, Optional, Dict, Any
+from typing import Any
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from api.settings import settings
-from api.models.base import Base
 
-DB_URL: str = settings.db_url
+DB_URL = settings.db_url
 
-POOL_KW: Dict[str, Any] = {
+POOL_KW: dict[str, Any] = {
     "pool_pre_ping": True,
     "pool_recycle": 280,
     "pool_size": settings.db_pool_size,
     "max_overflow": settings.db_max_overflow,
 }
 
-CONNECT_ARGS: Dict[str, Any] = {}
+CONNECT_ARGS: dict[str, Any] = {}
 
-# SSL optionnel (si cert fourni)
-ssl_ca = settings.mysql_ssl_ca
-if ssl_ca and DB_URL.startswith("mysql"):
-    CONNECT_ARGS["ssl"] = {"ca": ssl_ca}
+if settings.mysql_ssl_ca and DB_URL.startswith("mysql"):
+    CONNECT_ARGS["ssl"] = {"ca": settings.mysql_ssl_ca}
 
-# SQLite: connect_args spécifiques + pas de pool sizing
 if DB_URL.startswith("sqlite"):
-    CONNECT_ARGS.setdefault("check_same_thread", False)
+    CONNECT_ARGS["check_same_thread"] = False
     POOL_KW.pop("pool_size", None)
     POOL_KW.pop("max_overflow", None)
     POOL_KW.pop("pool_recycle", None)
 
-engine = create_engine(
-    DB_URL,
-    connect_args=CONNECT_ARGS,
-    **POOL_KW,
-)
-
+engine = create_engine(DB_URL, connect_args=CONNECT_ARGS, **POOL_KW)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
+Base = declarative_base()
 
 
-@contextmanager
-def get_db() -> Iterator[Session]:
-    """Dépendance FastAPI: yield une session SQLAlchemy proprement fermée."""
-    db: Optional[Session] = None
+def get_db():
+    db: Session = SessionLocal()
     try:
-        db = SessionLocal()
         yield db
     finally:
-        if db is not None:
-            db.close()
+        db.close()
+
+
+def init_db() -> None:
+    import api.models  # noqa: F401
+
+    Base.metadata.create_all(bind=engine)
