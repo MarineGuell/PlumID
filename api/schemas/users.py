@@ -11,12 +11,9 @@ class UserBase(BaseModel):
     mail: Optional[EmailStr] = None
     username: Optional[str] = None
     role: Optional[str] = None
-    # Statut de vérification de l'email (Temporairement désactivé)
-    # is_verified: Optional[bool] = None
-    # Date/heure de vérification (UTC)
-    # email_verified_at: Optional[datetime] = None
-    # Nouveau : statut d'activation du compte
     is_active: Optional[bool] = None
+    is_verified: Optional[bool] = None
+    email_verified_at: Optional[datetime] = None
 
 
 class UserCreate(BaseModel):

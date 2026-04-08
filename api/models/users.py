@@ -46,22 +46,19 @@ class Users(Base):
         index=True,
     )
 
-    # --- Temporairement désactivé : statut de vérification de l'email ---
-    # is_verified = Column(
-    #     Boolean,
-    #     nullable=False,
-    #     server_default="0",  # MySQL: TINYINT(1) par défaut
-    # )
-    # email_verified_at = Column(
-    #     DateTime,
-    #     nullable=True,
-    # )
-
-    # --- Nouveau : statut d'activation du compte ---
     is_active = Column(
         Boolean,
         nullable=False,
         server_default="1",
+    )
+    is_verified = Column(
+        Boolean,
+        nullable=False,
+        server_default="0",
+    )
+    email_verified_at = Column(
+        DateTime,
+        nullable=True,
     )
 
     # Relations

@@ -6,11 +6,11 @@ class SpeciesBase(BaseModel):
     """
     Base properties for a Species.
     """
-    sex: str | None = None
     region: str | None = None
     environment: str | None = None
     information: str | None = None
     species_name: str | None = None
+    species_url_picture: str | None = None
 
 
 class SpeciesCreate(SpeciesBase):
