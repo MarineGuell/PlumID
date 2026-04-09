@@ -11,15 +11,11 @@
 Le projet combine **vision par ordinateur** et **analyse contextuelle** (géographique et temporelle) pour améliorer la précision des prédictions.  
 Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — promeneurs, naturalistes, enseignants, écologues — à découvrir les oiseaux qui les entourent et à mieux comprendre la biodiversité.
 
----
-
 ## Objectifs
 
 - Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume.
 - Développer une **interface mobile intuitive** adaptée à un large public.  
 - Sensibiliser à la **préservation de la biodiversité** et faciliter les travaux des **chercheurs en ornithologie**.
-
----
 
 ## Équipe projet
 
@@ -38,18 +34,14 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 | **Loïc** | Frontend |
 | **Mathis** | Frontend |
 
----
-
 ## Fonctionnalités principales (prévisionnelles)
 
 | Fonctionnalité | Description |
 | ---------------- | ------------- |
-| 📷 **Reconnaissance d’image** | Identification d’espèces à partir d’une photo de plume |
+| **Reconnaissance d’image** | Identification d’espèces à partir d’une photo de plume |
 | **Probabilités d’espèces** | Classement des résultats avec taux de confiance |
 | **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
 | **Historique utilisateur** | Enregistrement des observations |
-
----
 
 ## Architecture générale
 
