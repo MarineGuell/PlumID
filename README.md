@@ -58,5 +58,5 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 - **API Plum’ID** (FastAPI, Python)  
 - **Modèle IA de reconnaissance** (service dédié, HTTP/gRPC)  
 - **Front Web / Application** (SPA ou mobile)  
-- **Base de données** (MySQL)  
+- **Base de données** (MySQL)
 - (Optionnel) **Storage objet** pour les images (S3 / MinIO)
