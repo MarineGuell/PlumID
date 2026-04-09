@@ -19,7 +19,7 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 ## Équipe projet
 
-| Nom | Rôle / spécialité |
+| Nom | Rôle |
 | ------ | ------------------- |
 | [**Marine Guell**](https://github.com/MarineGuell) | Coordination & expertise métier |
 | [**Paul Berdier**](https://github.com/Paul-Berdier) | Backend / API - Infrastructure & DevOps |
