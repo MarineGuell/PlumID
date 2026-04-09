@@ -21,7 +21,7 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 ---
 
-## 👥 Équipe projet
+## Équipe projet
 
 | Nom | Rôle / spécialité |
 | ------ | ------------------- |
