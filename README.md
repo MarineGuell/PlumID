@@ -29,10 +29,10 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 | **Fabien** | Communication |
 | [**Anass**](https://github.com/AnassHmadouch) | Base de données & structure - Collecte & annotation des données |
 | [**Marc Ezechiel**](https://github.com/bakeze) | IA / Entraînement du modèle |
-| [**Amdjad**](https://github.com/Maxiwere45) | Application Mobile & API |
-| **Laura** | Application Mobile |
-| **Loïc** | Application Mobile |
-| **Mathis** | Application Mobile & API |
+| [**Amdjad**](https://github.com/Maxiwere45) | Développement de l'application mobile & API |
+| **Laura** | Développement de l'application mobile |
+| **Loïc** | Développement de l'application mobile |
+| **Mathis** | Développement de l'application mobile & API |
 
 ## Fonctionnalités principales (prévisionnelles)
 
