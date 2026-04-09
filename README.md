@@ -4,7 +4,7 @@
 - [Lien vers le projet modèle IA](https://github.com/MarineGuell/plumid-model)
 - [Lien vers le projet de l'application mobile](https://github.com/MarineGuell/plumid-mobile)
 
-## 🌍 Présentation du projet
+## Présentation du projet
 
 **Plum'ID** est une application de reconnaissance d’image permettant d’identifier une **espèce d’oiseau à partir d’une photo de plume**.
 
@@ -13,11 +13,11 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 ---
 
-## 🎯 Objectifs
+## Objectifs
 
-- 🧠 Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume.
-- 💡 Développer une **interface mobile intuitive** adaptée à un large public.  
-- 🌱 Sensibiliser à la **préservation de la biodiversité** et faciliter les travaux des **chercheurs en ornithologie**.
+- Créer un **modèle d’intelligence artificielle** capable de reconnaître une espèce d’oiseau à partir d’une photo de plume.
+- Développer une **interface mobile intuitive** adaptée à un large public.  
+- Sensibiliser à la **préservation de la biodiversité** et faciliter les travaux des **chercheurs en ornithologie**.
 
 ---
 
@@ -27,7 +27,7 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 | ------ | ------------------- |
 | [**Marine Guell**](https://github.com/MarineGuell) | Coordination & expertise métier |
 | [**Paul Berdier**](https://github.com/Paul-Berdier) | Backend / API - Infrastructure & DevOps |
-| **Louis**| Base de données & structure - Collecte & annotation des données |
+| **Louis** | Base de données & structure - Collecte & annotation des données |
 | **Théo** | IA / Entraînement du modèle - Collecte & annotation des données |
 | **Yann** | Data science / IA / Entraînement du modèle |
 | **Fabien** | Communication |
@@ -40,18 +40,18 @@ Grâce à l’intelligence artificielle, Plum’ID aide les utilisateurs — pro
 
 ---
 
-## 🧩 Fonctionnalités principales (prévisionnelles)
+## Fonctionnalités principales (prévisionnelles)
 
 | Fonctionnalité | Description |
 | ---------------- | ------------- |
 | 📷 **Reconnaissance d’image** | Identification d’espèces à partir d’une photo de plume |
-| 📊 **Probabilités d’espèces** | Classement des résultats avec taux de confiance |
-| 📚 **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
-| 💾 **Historique utilisateur** | Enregistrement des observations |
+| **Probabilités d’espèces** | Classement des résultats avec taux de confiance |
+| **Fiches informatives** | Nom latin, habitat, statut, images comparatives |
+| **Historique utilisateur** | Enregistrement des observations |
 
 ---
 
-## 🗂️ Architecture générale
+## Architecture générale
 
 À terme, le projet Plum’ID sera composé de plusieurs briques :
 
