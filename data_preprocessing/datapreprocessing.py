@@ -1,6 +1,6 @@
 import csv
 import os
-
+# 696 images = 1063 plumes !
 import cv2 as cv
 import numpy as np
 from PIL import Image
@@ -763,8 +763,7 @@ def sharpening(strength: float = 0.7):
 
 
 def image_padding():
-    files = sorted(os.scandir(_subdir("contrast")),
-                   key=lambda f: int(f.name.split("_")[1].split(".")[0]))
+    files = os.scandir(_subdir("segmentation"))
     for index, image in enumerate(files):
         img = Image.open(image.path)
         w, h = img.size
@@ -792,6 +791,5 @@ def data_preprocess(dir, sam_weights_path="sam3.pt"):
         max_masks_per_image=10,
         verbose=True,
     )
-    denoise()
-    enhance_contrast()
     image_padding()
+
